@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, Scale, Users, FileText, Shield, Phone, Mail, MapPin, Clock, CheckCircle, Award, BookOpen, Briefcase, ArrowRight, Star, Calendar, MessageCircle, Download, ExternalLink, ChevronRight, TrendingUp, Building, Gavel, UserCheck, Heart, Compass, Lightbulb } from 'lucide-react';
+import { Menu, X, Scale, Users, FileText, Shield, Phone, Mail, MapPin, Clock, CheckCircle, Award, ArrowRight, Calendar, MessageCircle, ChevronRight, Building, Gavel, UserCheck } from 'lucide-react';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -14,6 +15,10 @@ function App() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleAcceptDisclaimer = () => {
+    setShowDisclaimer(false);
+  };
 
   const services = [
     {
@@ -80,43 +85,6 @@ function App() {
     }
   ];
 
-  const testimonials = [
-    {
-      name: "Rajesh Kumar",
-      role: "CEO, Tech Solutions Pvt. Ltd.",
-      content: "Ashutosh's expertise in corporate law helped us navigate complex business challenges. His attention to detail and professional approach is commendable. The legal strategies he provided were instrumental in our company's growth.",
-      rating: 5,
-      image: "https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=150"
-    },
-    {
-      name: "Priya Sharma",
-      role: "Property Developer",
-      content: "Excellent legal consultation and representation in property matters. He explained complex legal procedures in simple terms and achieved a favorable outcome for my case. Highly recommended for real estate legal issues.",
-      rating: 5,
-      image: "https://images.pexels.com/photos/3756679/pexels-photo-3756679.jpeg?auto=compress&cs=tinysrgb&w=150"
-    },
-    {
-      name: "Amit Patel",
-      role: "Manufacturing Business Owner",
-      content: "Outstanding legal services for our company's compliance and documentation needs. Ashutosh's proactive approach and deep understanding of corporate law saved us from potential legal complications.",
-      rating: 5,
-      image: "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150"
-    },
-    {
-      name: "Rajesh Kumar",
-      role: "CEO, Tech Solutions Pvt. Ltd.",
-      content: "Ashutosh's expertise in corporate law helped us navigate complex business challenges. His attention to detail and professional approach is commendable. The legal strategies he provided were instrumental in our company's growth.",
-      rating: 5,
-      image: "https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=150"
-    },
-    {
-      name: "Priya Sharma",
-      role: "Property Developer",
-      content: "Excellent legal consultation and representation in property matters. He explained complex legal procedures in simple terms and achieved a favorable outcome for my case. Highly recommended for real estate legal issues.",
-      rating: 5,
-      image: "https://images.pexels.com/photos/3756679/pexels-photo-3756679.jpeg?auto=compress&cs=tinysrgb&w=150"
-    },
-  ];
 
   const credentials = [
     "LLB from Banaras Hindu University",
@@ -125,43 +93,143 @@ function App() {
     "Corporate Law Specialization"
   ];
 
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 3000,
-    responsive: [
-      {
-        breakpoint: 1024,
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 1,
-          infinite: true,
-          dots: true
-        }
-      },
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-          initialSlide: 1
-        }
-      }
-    ]
-  };
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Disclaimer Modal */}
+      {showDisclaimer && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-fade-in">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 px-6 py-5 flex items-center">
+              <Scale className="w-8 h-8 text-amber-500 mr-3" />
+              <div>
+                <h2 className="text-xl md:text-2xl font-bold text-white">DISCLAIMER</h2>
+                <p className="text-amber-400 text-sm">Bar Council of India Rules</p>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5 text-gray-700">
+              <p className="text-slate-800 leading-relaxed">
+                As per the rules of the Bar Council of India, Advocates are not permitted to solicit work or advertise, either directly or indirectly. By accessing this website, the user acknowledges that:
+              </p>
+
+              <div className="space-y-4">
+                <div className="bg-slate-50 rounded-xl p-4 border-l-4 border-amber-500">
+                  <h3 className="font-semibold text-slate-900 mb-2 flex items-center">
+                    <span className="bg-amber-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center mr-2">1</span>
+                    No Advertisement or Solicitation
+                  </h3>
+                  <p className="text-sm text-gray-600 ml-8">
+                    The contents of this website are for informational and knowledge-sharing purposes only and do not constitute any form of advertisement, solicitation, or inducement of any nature whatsoever.
+                  </p>
+                </div>
+
+                <div className="bg-slate-50 rounded-xl p-4 border-l-4 border-amber-500">
+                  <h3 className="font-semibold text-slate-900 mb-2 flex items-center">
+                    <span className="bg-amber-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center mr-2">2</span>
+                    No Legal Advice
+                  </h3>
+                  <p className="text-sm text-gray-600 ml-8">
+                    The information provided is not intended to be legal advice. Visitors are advised not to act or refrain from acting on the basis of any content without seeking appropriate legal advice from a qualified professional.
+                  </p>
+                </div>
+
+                <div className="bg-slate-50 rounded-xl p-4 border-l-4 border-amber-500">
+                  <h3 className="font-semibold text-slate-900 mb-2 flex items-center">
+                    <span className="bg-amber-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center mr-2">3</span>
+                    No Attorney–Client Relationship
+                  </h3>
+                  <p className="text-sm text-gray-600 ml-8">
+                    Accessing, browsing, or using this website does not create an Advocate–Client relationship between the visitor and the Advocate.
+                  </p>
+                </div>
+
+                <div className="bg-slate-50 rounded-xl p-4 border-l-4 border-amber-500">
+                  <h3 className="font-semibold text-slate-900 mb-2 flex items-center">
+                    <span className="bg-amber-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center mr-2">4</span>
+                    User-Initiated Access
+                  </h3>
+                  <p className="text-sm text-gray-600 ml-8">
+                    The user confirms that they are accessing this website on their own initiative for gaining knowledge and information about the law.
+                  </p>
+                </div>
+
+                <div className="bg-slate-50 rounded-xl p-4 border-l-4 border-amber-500">
+                  <h3 className="font-semibold text-slate-900 mb-2 flex items-center">
+                    <span className="bg-amber-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center mr-2">5</span>
+                    Accuracy and Completeness
+                  </h3>
+                  <p className="text-sm text-gray-600 ml-8">
+                    While reasonable efforts are made to ensure accuracy, the Advocate makes no warranties about the accuracy, completeness, or reliability of the content.
+                  </p>
+                </div>
+
+                <div className="bg-slate-50 rounded-xl p-4 border-l-4 border-amber-500">
+                  <h3 className="font-semibold text-slate-900 mb-2 flex items-center">
+                    <span className="bg-amber-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center mr-2">6</span>
+                    Limitation of Liability
+                  </h3>
+                  <p className="text-sm text-gray-600 ml-8">
+                    The Advocate shall not be liable for any loss, damage, or injury arising from the use of or reliance upon the information provided on this website.
+                  </p>
+                </div>
+
+                <div className="bg-slate-50 rounded-xl p-4 border-l-4 border-amber-500">
+                  <h3 className="font-semibold text-slate-900 mb-2 flex items-center">
+                    <span className="bg-amber-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center mr-2">7</span>
+                    Third-Party Links
+                  </h3>
+                  <p className="text-sm text-gray-600 ml-8">
+                    This website may contain links to third-party websites. The Advocate does not endorse or assume responsibility for external content.
+                  </p>
+                </div>
+
+                <div className="bg-slate-50 rounded-xl p-4 border-l-4 border-amber-500">
+                  <h3 className="font-semibold text-slate-900 mb-2 flex items-center">
+                    <span className="bg-amber-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center mr-2">8</span>
+                    Intellectual Property
+                  </h3>
+                  <p className="text-sm text-gray-600 ml-8">
+                    All content on this website is the intellectual property of the Advocate. Unauthorized use, reproduction, or distribution is prohibited.
+                  </p>
+                </div>
+
+                <div className="bg-slate-50 rounded-xl p-4 border-l-4 border-amber-500">
+                  <h3 className="font-semibold text-slate-900 mb-2 flex items-center">
+                    <span className="bg-amber-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center mr-2">9</span>
+                    Jurisdiction
+                  </h3>
+                  <p className="text-sm text-gray-600 ml-8">
+                    This disclaimer shall be governed by the laws of India. Any disputes shall be subject to the exclusive jurisdiction of competent courts.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+              <p className="text-sm text-gray-600 text-center mb-4">
+                By proceeding further, you acknowledge that you have read, understood, and agreed to this disclaimer.
+              </p>
+              <button
+                onClick={handleAcceptDisclaimer}
+                className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center"
+              >
+                <CheckCircle className="w-5 h-5 mr-2" />
+                I Agree & Accept
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Navigation */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        scrolled 
-          ? 'bg-slate-900/95 backdrop-blur-md shadow-lg' 
-          : 'bg-slate-900'
-      }`}>
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled
+        ? 'bg-slate-900/95 backdrop-blur-md shadow-lg'
+        : 'bg-slate-900'
+        }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
@@ -170,7 +238,7 @@ function App() {
                 <span className="text-xl font-bold text-white">Ashutosh Ojha</span>
               </div>
             </div>
-            
+
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-4">
                 <a href="#home" className="text-white hover:text-amber-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Home</a>
@@ -181,7 +249,7 @@ function App() {
                 <a href="#contact" className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Contact</a>
               </div>
             </div>
-            
+
             <div className="md:hidden">
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -192,7 +260,7 @@ function App() {
             </div>
           </div>
         </div>
-        
+
         {isMenuOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-slate-900/95 backdrop-blur-md border-t border-slate-700">
@@ -227,7 +295,7 @@ function App() {
                   Legal professional with over seven years of experience in civil litigation, real estate litigation, corporate advisory, and legal documentation. Experienced in handling complex legal matters with a practical, solution-oriented approach.
                 </p>
               </div>
-              
+
               {/* Trust Badges */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 {achievements.map((achievement, index) => (
@@ -240,7 +308,7 @@ function App() {
                   </div>
                 ))}
               </div>
-              
+
               <div className="flex flex-col sm:flex-row gap-4">
                 <a
                   href="#contact"
@@ -258,11 +326,11 @@ function App() {
                 </a>
               </div>
             </div>
-            
+
             <div className="relative">
               <div className="relative z-10">
                 <img
-                  src="https://ashutoshojha.com/wp-content/uploads/2023/01/IMG_20221014_135837_183.jpg"
+                  src="/images/hero-portrait.jpg"
                   alt="Ashutosh Ojha - Professional Advocate"
                   className="rounded-2xl shadow-2xl w-full max-w-md mx-auto"
                 />
@@ -285,12 +353,12 @@ function App() {
           <div className="lg:grid lg:grid-cols-2 lg:gap-12 items-center">
             <div className="mb-8 lg:mb-0">
               <img
-                src="https://ashutoshojha.com/wp-content/uploads/2023/01/IMG20221012140450-01.jpeg.jpg"
+                src="/images/about-portrait.jpeg"
                 alt="Ashutosh Ojha in Professional Setting"
                 className="rounded-2xl shadow-xl w-full"
               />
             </div>
-            
+
             <div>
               <div className="mb-6">
                 <span className="inline-flex items-center bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-medium mb-4">
@@ -301,14 +369,14 @@ function App() {
                   About Ashutosh Ojha
                 </h2>
               </div>
-              
+
               <p className="text-lg text-gray-700 mb-6 leading-relaxed">
-                With over 7 years of dedicated practice in law, I specialize in providing comprehensive 
-                legal services to individuals and businesses. My commitment to excellence and client-focused 
-                approach has established a reputation for delivering effective legal solutions with integrity 
+                With over 7 years of dedicated practice in law, I specialize in providing comprehensive
+                legal services to individuals and businesses. My commitment to excellence and client-focused
+                approach has established a reputation for delivering effective legal solutions with integrity
                 and professionalism.
               </p>
-              
+
               <div className="mb-8">
                 <h3 className="text-xl font-semibold text-slate-900 mb-4">Professional Credentials</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -320,14 +388,14 @@ function App() {
                   ))}
                 </div>
               </div>
-              
+
               <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                I believe in building lasting relationships with my clients through transparent communication, 
-                ethical practice, and personalized attention to each case. My goal is to provide not just legal 
-                representation, but strategic guidance that helps clients achieve their objectives while 
+                I believe in building lasting relationships with my clients through transparent communication,
+                ethical practice, and personalized attention to each case. My goal is to provide not just legal
+                representation, but strategic guidance that helps clients achieve their objectives while
                 protecting their interests.
               </p>
-              
+
               <div className="flex items-center space-x-4">
                 <a
                   href="#contact"
@@ -361,11 +429,11 @@ function App() {
               Comprehensive Legal Solutions
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Expert legal services tailored to meet your specific needs with dedication, 
+              Expert legal services tailored to meet your specific needs with dedication,
               professionalism, and proven results.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {services.map((service, index) => (
               <div key={index} className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-2xl hover:border-amber-200 transition-all duration-300 group">
@@ -409,11 +477,11 @@ function App() {
               Areas of Legal Expertise
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Specialized knowledge across multiple areas of law to serve diverse client needs 
+              Specialized knowledge across multiple areas of law to serve diverse client needs
               with expertise and precision.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {practiceAreas.map((area, index) => (
               <div key={index} className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg hover:border-amber-200 border border-gray-100 transition-all duration-300 group">
@@ -427,7 +495,7 @@ function App() {
         </div>
       </section>
 
-     
+
 
       {/*+++++++++++++++++++++++++++++++++++++++++++++++++++++ Contact Section +++++++++++++++++++++++++++++++++++++++++++++++++++*/}
       <section id="contact" className="py-20 bg-slate-900 text-white">
@@ -438,7 +506,7 @@ function App() {
               Contact Me
             </span>
           </div>
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <div>
               <h3 className="text-2xl font-semibold mb-8 text-amber-400">Contact Information</h3>
@@ -453,7 +521,7 @@ function App() {
                     {/* <p className="text-sm text-gray-400">Available Mon-Sat, 10 AM - 7 PM</p> */}
                   </div>
                 </div>
-                
+
                 <div className="flex items-start">
                   <div className="flex items-center justify-center w-12 h-12 bg-amber-600 rounded-lg mr-4 flex-shrink-0">
                     <Mail className="w-6 h-6 text-white" />
@@ -465,7 +533,7 @@ function App() {
                     {/* <p className="text-sm text-gray-400">Response within 24 hours</p> */}
                   </div>
                 </div>
-                
+
                 <div className="flex items-start">
                   <div className="flex items-center justify-center w-12 h-12 bg-amber-600 rounded-lg mr-4 flex-shrink-0">
                     <MapPin className="w-6 h-6 text-white" />
@@ -473,10 +541,10 @@ function App() {
                   <div>
                     <p className="font-medium text-white mb-1">Office Address</p>
                     <p className="text-gray-300">311-B, Tower B, Third Floor, The Ithum, Sector 62, Noida <br />Uttar Pradesh - 201301</p>
-            
+
                   </div>
                 </div>
-                
+
                 <div className="flex items-start">
                   <div className="flex items-center justify-center w-12 h-12 bg-amber-600 rounded-lg mr-4 flex-shrink-0">
                     <Clock className="w-6 h-6 text-white" />
@@ -489,7 +557,7 @@ function App() {
                 </div>
               </div>
             </div>
-            
+
             <div>
               <h3 className="text-2xl font-semibold mb-8 text-amber-400">Do you have any legal query ?</h3>
               <form className="space-y-6">
@@ -509,7 +577,7 @@ function App() {
                     />
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <input
@@ -528,7 +596,7 @@ function App() {
                     </select>
                   </div>
                 </div>
-                
+
                 <div>
                   <textarea
                     rows={4}
@@ -536,7 +604,7 @@ function App() {
                     className="w-full px-4 py-3 rounded-lg bg-slate-800 text-white placeholder-gray-400 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
                   ></textarea>
                 </div>
-                
+
                 <button
                   type="submit"
                   className="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center"
@@ -544,13 +612,13 @@ function App() {
                   <Calendar className="w-5 h-5 mr-2" />
                   Schedule Consultation
                 </button>
-                
+
                 <p className="text-sm text-gray-400 text-center">
                   All consultations are confidential and protected by attorney-client privilege.
                 </p>
               </form>
             </div>
-          
+
           </div>
         </div>
       </section>
@@ -572,7 +640,7 @@ function App() {
                 Licensed Advocate | Bar Registration No: ABC123456
               </div>
             </div>
-            
+
             <div>
               <h4 className="text-lg font-semibold text-white mb-4">Quick Links</h4>
               <div className="space-y-2">
@@ -582,7 +650,7 @@ function App() {
                 <a href="#contact" className="block text-gray-400 hover:text-amber-400 transition-colors">Contact</a>
               </div>
             </div>
-            
+
             <div>
               <h4 className="text-lg font-semibold text-white mb-4">Legal Services</h4>
               <div className="space-y-2">
@@ -593,7 +661,7 @@ function App() {
               </div>
             </div>
           </div>
-          
+
           <div className="border-t border-slate-700 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <div className="text-gray-400 mb-4 md:mb-0">
