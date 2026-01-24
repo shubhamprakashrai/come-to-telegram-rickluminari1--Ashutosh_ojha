@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Menu, X, Scale, Users, FileText, Shield, Phone, Mail, MapPin, Clock, CheckCircle, Award, ArrowRight, Calendar, MessageCircle, ChevronRight, Building, Gavel, UserCheck } from 'lucide-react';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
+import ThemeManager from './components/ThemeManager';
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -330,7 +331,7 @@ function App() {
             <div className="relative">
               <div className="relative z-10">
                 <img
-                  src="/images/hero-portrait.jpg"
+                  src="/images/hero-portrait.webp"
                   alt="Ashutosh Ojha - Professional Advocate"
                   className="rounded-2xl shadow-2xl w-full max-w-md mx-auto"
                 />
@@ -353,7 +354,7 @@ function App() {
           <div className="lg:grid lg:grid-cols-2 lg:gap-12 items-center">
             <div className="mb-8 lg:mb-0">
               <img
-                src="/images/about-portrait.jpeg"
+                src="/images/about-portrait.webp"
                 alt="Ashutosh Ojha in Professional Setting"
                 className="rounded-2xl shadow-xl w-full"
               />
@@ -674,6 +675,9 @@ function App() {
           </div>
         </div>
       </footer>
+
+      {/* Theme Manager */}
+      <ThemeManager />
     </div>
   );
 }

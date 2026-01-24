@@ -1,0 +1,371 @@
+/* ========================================
+   GOLD ELEGANT THEME - Luxury & Sophistication
+   ======================================== */
+
+:root {
+  /* Primary Colors */
+  --primary-bg: #0c0a09; /* stone-950 */
+  --primary-bg-secondary: #1c1917; /* stone-900 */
+  --primary-bg-accent: #292524; /* stone-800 */
+
+  /* Accent Colors */
+  --accent-primary: #d4af37; /* gold */
+  --accent-secondary: #f59e0b; /* amber-500 */
+  --accent-light: #fbbf24; /* amber-400 */
+  --accent-dark: #b45309; /* amber-700 */
+
+  /* Text Colors */
+  --text-primary: #ffffff;
+  --text-secondary: #f5f5f4; /* stone-100 */
+  --text-muted: #a8a29e; /* stone-400 */
+
+  /* Surface Colors */
+  --surface-primary: #ffffff;
+  --surface-secondary: #fafaf9; /* stone-50 */
+  --surface-accent: #f5f5f4; /* stone-100 */
+
+  /* Border Colors */
+  --border-primary: #e7e5e4; /* stone-200 */
+  --border-secondary: #d6d3d1; /* stone-300 */
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes elegantFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes goldenGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(212, 175, 55, 0.6);
+  }
+}
+
+@keyframes luxuriousSlide {
+  from {
+    opacity: 0;
+    transform: translateX(-50px) rotate(-2deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) rotate(0deg);
+  }
+}
+
+@keyframes elegantBounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) rotate(-5deg);
+  }
+  50% {
+    transform: scale(1.05) rotate(2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes shimmerGold {
+  0% {
+    background-position: -300px 0;
+  }
+  100% {
+    background-position: calc(300px + 100%) 0;
+  }
+}
+
+@keyframes floatingParticles {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.7;
+  }
+  25% {
+    transform: translateY(-20px) rotate(90deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-10px) rotate(180deg);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translateY(-30px) rotate(270deg);
+    opacity: 0.9;
+  }
+}
+
+@keyframes goldRipple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes elegantHover {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-3px) rotate(1deg);
+  }
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+.animate-elegant-fade {
+  animation: elegantFadeIn 0.8s ease-out forwards;
+}
+
+.animate-golden-glow {
+  animation: goldenGlow 3s ease-in-out infinite;
+}
+
+.animate-luxurious-slide {
+  animation: luxuriousSlide 0.7s ease-out forwards;
+}
+
+.animate-elegant-bounce {
+  animation: elegantBounce 0.9s ease-out forwards;
+}
+
+.animate-shimmer-gold {
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.6), transparent);
+  background-size: 300px 100%;
+  animation: shimmerGold 3s infinite;
+}
+
+.animate-floating {
+  animation: floatingParticles 6s ease-in-out infinite;
+}
+
+.animate-gold-ripple {
+  animation: goldRipple 1s ease-out forwards;
+}
+
+.animate-elegant-hover:hover {
+  animation: elegantHover 0.6s ease-in-out;
+}
+
+/* ========================================
+   THEME OVERRIDES - GOLD ELEGANT
+   ======================================== */
+
+body.theme-gold-elegant nav {
+  background: linear-gradient(135deg, var(--primary-bg) 0%, rgba(212, 175, 55, 0.1) 50%, var(--primary-bg-secondary) 100%);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  backdrop-filter: blur(20px);
+}
+
+body.theme-gold-elegant nav a:hover {
+  color: var(--accent-light) !important;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+  transform: translateY(-2px);
+  transition: all 0.4s ease;
+}
+
+/* Hero Section */
+body.theme-gold-elegant #home {
+  background: linear-gradient(135deg, var(--primary-bg) 0%, var(--primary-bg-secondary) 50%, rgba(212, 175, 55, 0.1) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+body.theme-gold-elegant #home::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 30% 70%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 70% 30%, rgba(245, 158, 11, 0.05) 0%, transparent 50%),
+    linear-gradient(45deg, transparent 30%, rgba(212, 175, 55, 0.02) 50%, transparent 70%);
+  animation: shimmerGold 8s ease-in-out infinite;
+}
+
+body.theme-gold-elegant #home::after {
+  content: '';
+  position: absolute;
+  top: 10%;
+  right: 10%;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: floatingParticles 4s ease-in-out infinite;
+}
+
+/* Buttons */
+body.theme-gold-elegant .bg-amber-600 {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+body.theme-gold-elegant .bg-amber-600::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+body.theme-gold-elegant .bg-amber-600:hover::before {
+  left: 100%;
+}
+
+body.theme-gold-elegant .bg-amber-600:hover {
+  background: linear-gradient(135deg, var(--accent-dark), var(--accent-primary)) !important;
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(212, 175, 55, 0.4);
+}
+
+body.theme-gold-elegant .border-amber-500 {
+  border: 2px solid var(--accent-secondary) !important;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(245, 158, 11, 0.05)) !important;
+}
+
+body.theme-gold-elegant .border-amber-500:hover {
+  border-color: var(--accent-primary) !important;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+  color: var(--primary-bg) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(212, 175, 55, 0.3);
+}
+
+/* Service Cards */
+body.theme-gold-elegant .shadow-lg:not(button) {
+  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.1), 0 1px 8px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(212, 175, 55, 0.02));
+  transition: all 0.4s ease;
+}
+
+/* Buttons - ensure text is always visible */
+body.theme-gold-elegant button.shadow-lg,
+body.theme-gold-elegant .bg-gradient-to-r {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+  color: #ffffff !important;
+}
+
+body.theme-gold-elegant .shadow-lg:hover {
+  box-shadow: 0 20px 50px rgba(212, 175, 55, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2) !important;
+  transform: translateY(-8px) rotate(1deg);
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+/* Practice Areas */
+body.theme-gold-elegant .hover\:border-amber-200:hover {
+  border-color: var(--accent-light) !important;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+}
+
+/* Contact Section */
+body.theme-gold-elegant #contact {
+  background: linear-gradient(135deg, var(--primary-bg) 0%, var(--primary-bg-secondary) 50%, rgba(212, 175, 55, 0.05) 100%);
+  position: relative;
+}
+
+body.theme-gold-elegant #contact::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.05) 0%, transparent 70%);
+}
+
+/* Footer */
+body.theme-gold-elegant footer {
+  background: linear-gradient(135deg, var(--primary-bg-secondary) 0%, var(--primary-bg) 100%);
+  border-top: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+/* ========================================
+   STAGGERED ANIMATIONS
+   ======================================== */
+
+@media (min-width: 768px) {
+  .animate-elegant-fade:nth-child(1) { animation-delay: 0.2s; }
+  .animate-elegant-fade:nth-child(2) { animation-delay: 0.4s; }
+  .animate-elegant-fade:nth-child(3) { animation-delay: 0.6s; }
+  .animate-elegant-fade:nth-child(4) { animation-delay: 0.8s; }
+}
+
+/* ========================================
+   LUXURY LOADING
+   ======================================== */
+
+.luxury-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--primary-bg), var(--primary-bg-secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.luxury-spinner {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.luxury-spinner::before,
+.luxury-spinner::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  animation: luxuriousSpin 2s ease-in-out infinite;
+}
+
+.luxury-spinner::before {
+  width: 100%;
+  height: 100%;
+  background: conic-gradient(from 0deg, transparent, var(--accent-primary), transparent);
+  mask: radial-gradient(circle at center, transparent 40%, black 42%);
+}
+
+.luxury-spinner::after {
+  width: 60%;
+  height: 60%;
+  top: 20%;
+  left: 20%;
+  background: var(--accent-primary);
+  box-shadow: 0 0 20px var(--accent-primary);
+}
+
+@keyframes luxuriousSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

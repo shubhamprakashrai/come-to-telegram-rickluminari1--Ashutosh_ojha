@@ -1,0 +1,582 @@
+/* ========================================
+   SUNSET WARM THEME - Cozy & Inviting
+   ======================================== */
+
+:root {
+  /* Primary Colors */
+  --primary-bg: #1c1917; /* stone-900 */
+  --primary-bg-secondary: #292524; /* stone-800 */
+  --primary-bg-accent: #3f3f46; /* zinc-700 */
+
+  /* Accent Colors */
+  --accent-primary: #f97316; /* orange-500 */
+  --accent-secondary: #ea580c; /* orange-600 */
+  --accent-light: #fb923c; /* orange-400 */
+  --accent-dark: #c2410c; /* orange-700 */
+
+  /* Warm Accent Colors */
+  --warm-pink: #ec4899; /* pink-500 */
+  --warm-yellow: #eab308; /* yellow-500 */
+  --warm-coral: #f87171; /* red-400 */
+
+  /* Text Colors */
+  --text-primary: #ffffff;
+  --text-secondary: #f5f5f4; /* stone-100 */
+  --text-muted: #d4d4d8; /* zinc-300 */
+
+  /* Surface Colors */
+  --surface-primary: #ffffff;
+  --surface-secondary: #fef7ed; /* orange-50 */
+  --surface-accent: #fff7ed; /* orange-100 */
+
+  /* Border Colors */
+  --border-primary: #fed7aa; /* orange-200 */
+  --border-secondary: #fdba74; /* orange-300 */
+}
+
+/* ========================================
+   FLUID MOTION ANIMATIONS
+   ======================================== */
+
+@keyframes fluidWave {
+  0% {
+    transform: translateX(0) rotate(0deg);
+  }
+  25% {
+    transform: translateX(5px) rotate(1deg);
+  }
+  50% {
+    transform: translateX(0) rotate(0deg);
+  }
+  75% {
+    transform: translateX(-5px) rotate(-1deg);
+  }
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+}
+
+@keyframes warmFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes sunsetGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.2);
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(249, 115, 22, 0.4);
+    filter: hue-rotate(5deg);
+  }
+}
+
+@keyframes flowingMotion {
+  0% {
+    transform: translateX(0) translateY(0) rotate(0deg);
+  }
+  33% {
+    transform: translateX(3px) translateY(-2px) rotate(0.5deg);
+  }
+  66% {
+    transform: translateX(-2px) translateY(1px) rotate(-0.3deg);
+  }
+  100% {
+    transform: translateX(0) translateY(0) rotate(0deg);
+  }
+}
+
+@keyframes gentleSway {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(1deg);
+  }
+  75% {
+    transform: rotate(-1deg);
+  }
+}
+
+@keyframes warmPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.3);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(249, 115, 22, 0);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes fluidGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes organicFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-8px) rotate(0.5deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-12px) rotate(-0.3deg);
+  }
+}
+
+@keyframes sunsetRipple {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5) rotate(180deg);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2.5) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes warmShimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+.animate-fluid-wave {
+  animation: fluidWave 4s ease-in-out infinite;
+}
+
+.animate-warm-fade {
+  animation: warmFadeIn 0.7s ease-out forwards;
+}
+
+.animate-sunset-glow {
+  animation: sunsetGlow 3s ease-in-out infinite;
+}
+
+.animate-flowing-motion {
+  animation: flowingMotion 5s ease-in-out infinite;
+}
+
+.animate-gentle-sway {
+  animation: gentleSway 6s ease-in-out infinite;
+}
+
+.animate-warm-pulse {
+  animation: warmPulse 2.5s infinite;
+}
+
+.animate-fluid-gradient {
+  background-size: 200% 200%;
+  animation: fluidGradient 4s ease infinite;
+}
+
+.animate-organic-float {
+  animation: organicFloat 5s ease-in-out infinite;
+}
+
+.animate-sunset-ripple {
+  animation: sunsetRipple 2s ease-out forwards;
+}
+
+.animate-warm-shimmer {
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(249, 115, 22, 0.4),
+    rgba(236, 72, 153, 0.3),
+    rgba(234, 179, 8, 0.4),
+    transparent);
+  background-size: 200px 100%;
+  animation: warmShimmer 3s infinite;
+}
+
+/* ========================================
+   THEME OVERRIDES - SUNSET WARM
+   ======================================== */
+
+/* Navigation */
+body.theme-sunset-warm nav {
+  background: linear-gradient(135deg,
+    rgba(28, 25, 23, 0.95) 0%,
+    rgba(41, 37, 36, 0.95) 50%,
+    rgba(63, 63, 70, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(249, 115, 22, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+nav::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(249, 115, 22, 0.05),
+    rgba(236, 72, 153, 0.03),
+    rgba(234, 179, 8, 0.05),
+    transparent);
+  animation: warmShimmer 6s infinite;
+}
+
+body.theme-sunset-warm nav a:hover {
+  color: var(--accent-light) !important;
+  transform: translateY(-2px);
+  text-shadow: 0 0 10px rgba(249, 115, 22, 0.5);
+  transition: all 0.4s ease;
+}
+
+/* Hero Section */
+body.theme-sunset-warm #home {
+  background: linear-gradient(135deg,
+    var(--primary-bg) 0%,
+    var(--primary-bg-secondary) 40%,
+    rgba(249, 115, 22, 0.1) 60%,
+    rgba(236, 72, 153, 0.05) 80%,
+    var(--primary-bg-accent) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+#home::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(249, 115, 22, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 60% 40%, rgba(234, 179, 8, 0.08) 0%, transparent 50%);
+  animation: fluidGradient 8s ease infinite;
+}
+
+#home::after {
+  content: '';
+  position: absolute;
+  top: 15%;
+  right: 10%;
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle,
+    rgba(249, 115, 22, 0.1) 0%,
+    rgba(236, 72, 153, 0.08) 30%,
+    transparent 70%);
+  border-radius: 50%;
+  animation: organicFloat 7s ease-in-out infinite;
+}
+
+/* Buttons */
+.bg-amber-600 {
+  background: linear-gradient(135deg,
+    var(--accent-primary),
+    var(--accent-secondary),
+    var(--warm-pink)) !important;
+  position: relative;
+  overflow: hidden;
+  border: none;
+}
+
+.bg-amber-600::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent);
+  transition: left 0.6s ease;
+}
+
+.bg-amber-600:hover::before {
+  left: 100%;
+}
+
+.bg-amber-600:hover {
+  background: linear-gradient(135deg,
+    var(--accent-secondary),
+    var(--accent-primary),
+    var(--warm-coral)) !important;
+  transform: translateY(-3px) rotate(0.5deg);
+  box-shadow: 0 12px 35px rgba(249, 115, 22, 0.3);
+}
+
+.border-amber-500 {
+  border: 2px solid var(--accent-primary) !important;
+  background: linear-gradient(135deg,
+    rgba(249, 115, 22, 0.1),
+    rgba(236, 72, 153, 0.05)) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.border-amber-500::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg,
+    rgba(249, 115, 22, 0.1),
+    rgba(236, 72, 153, 0.08),
+    rgba(234, 179, 8, 0.1));
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.border-amber-500:hover::before {
+  opacity: 1;
+}
+
+.border-amber-500:hover {
+  border-color: var(--accent-secondary) !important;
+  background: linear-gradient(135deg,
+    var(--accent-primary),
+    var(--accent-secondary),
+    var(--warm-pink)) !important;
+  color: var(--primary-bg) !important;
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 8px 25px rgba(249, 115, 22, 0.25);
+}
+
+/* Service Cards */
+.shadow-lg {
+  box-shadow: 0 8px 25px rgba(249, 115, 22, 0.1) !important;
+  border: 1px solid rgba(249, 115, 22, 0.15);
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.95),
+    rgba(249, 115, 22, 0.02));
+  transition: all 0.5s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.shadow-lg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg,
+    var(--accent-primary),
+    var(--warm-pink),
+    var(--warm-yellow),
+    var(--accent-primary));
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+}
+
+.shadow-lg:hover::before {
+  transform: scaleX(1);
+}
+
+.shadow-lg:hover {
+  box-shadow: 0 20px 45px rgba(249, 115, 22, 0.2) !important;
+  transform: translateY(-8px) rotateY(2deg);
+  border-color: rgba(249, 115, 22, 0.3);
+}
+
+/* Practice Areas */
+.hover\:border-amber-200:hover {
+  border-color: var(--accent-light) !important;
+  box-shadow: 0 0 20px rgba(249, 115, 22, 0.2);
+  transform: translateY(-2px) rotate(0.5deg);
+}
+
+/* Contact Section */
+#contact {
+  background: linear-gradient(135deg,
+    var(--primary-bg) 0%,
+    var(--primary-bg-secondary) 50%,
+    rgba(249, 115, 22, 0.08) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+#contact::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 30% 70%, rgba(249, 115, 22, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 70% 30%, rgba(236, 72, 153, 0.06) 0%, transparent 50%);
+  animation: sunsetRipple 5s ease-in-out infinite;
+}
+
+/* Footer */
+footer {
+  background: linear-gradient(135deg,
+    var(--primary-bg-secondary) 0%,
+    var(--primary-bg) 100%);
+  border-top: 1px solid rgba(249, 115, 22, 0.15);
+  position: relative;
+}
+
+footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--accent-primary),
+    var(--warm-pink),
+    var(--warm-yellow),
+    transparent);
+}
+
+/* ========================================
+   FLUID ANIMATIONS
+   ======================================== */
+
+@media (min-width: 768px) {
+  .animate-warm-fade:nth-child(1) { animation-delay: 0.15s; }
+  .animate-warm-fade:nth-child(2) { animation-delay: 0.3s; }
+  .animate-warm-fade:nth-child(3) { animation-delay: 0.45s; }
+  .animate-warm-fade:nth-child(4) { animation-delay: 0.6s; }
+}
+
+/* ========================================
+   WARM LOADING
+   ======================================== */
+
+.warm-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg,
+    var(--primary-bg),
+    var(--primary-bg-secondary),
+    rgba(249, 115, 22, 0.1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.warm-spinner {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.warm-spinner::before,
+.warm-spinner::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  animation: flowingMotion 3s ease-in-out infinite;
+}
+
+.warm-spinner::before {
+  width: 100%;
+  height: 100%;
+  background: conic-gradient(from 0deg,
+    transparent,
+    var(--accent-primary),
+    var(--warm-pink),
+    transparent);
+  mask: radial-gradient(circle at center, transparent 40%, black 42%);
+}
+
+.warm-spinner::after {
+  width: 50%;
+  height: 50%;
+  top: 25%;
+  left: 25%;
+  background: linear-gradient(135deg,
+    var(--accent-primary),
+    var(--warm-yellow));
+  box-shadow: 0 0 20px var(--accent-primary);
+  animation-delay: 1.5s;
+}
+
+/* ========================================
+   SCROLL EFFECTS
+   ======================================== */
+
+@keyframes parallaxFloat {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  33% {
+    transform: translateY(-10px) translateX(5px);
+  }
+  66% {
+    transform: translateY(5px) translateX(-3px);
+  }
+}
+
+.parallax-element {
+  animation: parallaxFloat 8s ease-in-out infinite;
+}
+
+/* ========================================
+   INTERACTIVE ELEMENTS
+   ======================================== */
+
+.interactive-element {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.interactive-element:hover {
+  transform: translateY(-3px) scale(1.02);
+  filter: brightness(1.1);
+}
+
+/* ========================================
+   RESPONSIVE FLUIDITY
+   ======================================== */
+
+@media (max-width: 768px) {
+  .animate-fluid-wave,
+  .animate-organic-float,
+  .animate-gentle-sway {
+    animation-duration: 6s;
+  }
+}

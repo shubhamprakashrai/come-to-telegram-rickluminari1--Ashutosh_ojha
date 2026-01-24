@@ -1,0 +1,466 @@
+/* ========================================
+   EMERALD MODERN THEME - Vibrant & Dynamic
+   ======================================== */
+
+:root {
+  /* Primary Colors */
+  --primary-bg: #064e3b; /* emerald-900 */
+  --primary-bg-secondary: #065f46; /* emerald-800 */
+  --primary-bg-accent: #047857; /* emerald-700 */
+
+  /* Accent Colors */
+  --accent-primary: #10b981; /* emerald-500 */
+  --accent-secondary: #059669; /* emerald-600 */
+  --accent-light: #34d399; /* emerald-400 */
+  --accent-dark: #065f46; /* emerald-800 */
+
+  /* Text Colors */
+  --text-primary: #ffffff;
+  --text-secondary: #ecfdf5; /* emerald-50 */
+  --text-muted: #6ee7b7; /* emerald-300 */
+
+  /* Surface Colors */
+  --surface-primary: #ffffff;
+  --surface-secondary: #f0fdf4; /* emerald-50 */
+  --surface-accent: #dcfce7; /* emerald-100 */
+
+  /* Border Colors */
+  --border-primary: #bbf7d0; /* emerald-200 */
+  --border-secondary: #86efac; /* emerald-300 */
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes dynamicSlide {
+  from {
+    opacity: 0;
+    transform: translateX(-100px) skewX(-10deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) skewX(0deg);
+  }
+}
+
+@keyframes emeraldPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 15px rgba(16, 185, 129, 0);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes vibrantBounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-180deg);
+  }
+  30% {
+    transform: scale(1.1) rotate(-90deg);
+  }
+  60% {
+    transform: scale(0.9) rotate(0deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes energyWave {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5) rotate(180deg);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes morphingShape {
+  0%, 100% {
+    border-radius: 50%;
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    transform: rotate(90deg) scale(1.1);
+  }
+  50% {
+    border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
+    transform: rotate(180deg) scale(0.9);
+  }
+  75% {
+    border-radius: 100% 0% 100% 0% / 0% 100% 0% 100%;
+    transform: rotate(270deg) scale(1.05);
+  }
+}
+
+@keyframes vibrantGlow {
+  0%, 100% {
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    filter: brightness(1);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(16, 185, 129, 0.8), 0 0 30px rgba(16, 185, 129, 0.6);
+    filter: brightness(1.2);
+  }
+}
+
+@keyframes liquidFlow {
+  0% {
+    background-position: 0% 50%;
+    transform: skewX(0deg);
+  }
+  25% {
+    background-position: 100% 50%;
+    transform: skewX(2deg);
+  }
+  50% {
+    background-position: 50% 100%;
+    transform: skewX(0deg);
+  }
+  75% {
+    background-position: 0% 50%;
+    transform: skewX(-2deg);
+  }
+  100% {
+    background-position: 0% 50%;
+    transform: skewX(0deg);
+  }
+}
+
+@keyframes dynamicHover {
+  0% {
+    transform: translateY(0) rotateX(0deg);
+  }
+  25% {
+    transform: translateY(-5px) rotateX(5deg);
+  }
+  50% {
+    transform: translateY(-10px) rotateX(0deg);
+  }
+  75% {
+    transform: translateY(-5px) rotateX(-5deg);
+  }
+  100% {
+    transform: translateY(0) rotateX(0deg);
+  }
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+.animate-dynamic-slide {
+  animation: dynamicSlide 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+.animate-emerald-pulse {
+  animation: emeraldPulse 2.5s infinite;
+}
+
+.animate-vibrant-bounce {
+  animation: vibrantBounce 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+.animate-energy-wave {
+  animation: energyWave 2s ease-out forwards;
+}
+
+.animate-morphing {
+  animation: morphingShape 4s ease-in-out infinite;
+}
+
+.animate-vibrant-glow {
+  animation: vibrantGlow 2s ease-in-out infinite;
+}
+
+.animate-liquid-flow {
+  background-size: 400% 400%;
+  animation: liquidFlow 6s ease infinite;
+}
+
+.animate-dynamic-hover:hover {
+  animation: dynamicHover 0.8s ease-in-out;
+}
+
+/* ========================================
+   THEME OVERRIDES - EMERALD MODERN
+   ======================================== */
+
+/* Navigation */
+body.theme-emerald-modern nav {
+  background: linear-gradient(135deg, var(--primary-bg) 0%, var(--primary-bg-secondary) 50%, var(--accent-secondary) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+nav::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(16, 185, 129, 0.1) 50%, transparent 70%);
+  animation: liquidFlow 8s ease infinite;
+}
+
+body.theme-emerald-modern nav a:hover {
+  color: var(--accent-light) !important;
+  transform: translateY(-3px) scale(1.05);
+  text-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Hero Section */
+body.theme-emerald-modern #home {
+  background: linear-gradient(135deg, var(--primary-bg) 0%, var(--primary-bg-secondary) 30%, var(--accent-secondary) 70%, var(--primary-bg-accent) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+#home::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(5, 150, 105, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(52, 211, 153, 0.1) 0%, transparent 70%);
+  animation: liquidFlow 10s ease infinite reverse;
+}
+
+#home::after {
+  content: '';
+  position: absolute;
+  top: 20%;
+  right: 15%;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: morphingShape 6s ease-in-out infinite;
+}
+
+/* Buttons */
+.bg-amber-600 {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+  position: relative;
+  overflow: hidden;
+  border: none;
+}
+
+.bg-amber-600::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease;
+}
+
+.bg-amber-600:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.bg-amber-600:hover {
+  background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary)) !important;
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 15px 40px rgba(16, 185, 129, 0.4);
+}
+
+.border-amber-500 {
+  border: 2px solid var(--accent-primary) !important;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05)) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.border-amber-500::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.border-amber-500:hover::before {
+  left: 100%;
+}
+
+.border-amber-500:hover {
+  border-color: var(--accent-secondary) !important;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+  color: var(--primary-bg) !important;
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(16, 185, 129, 0.3);
+}
+
+/* Service Cards */
+body.theme-emerald-modern .shadow-lg:not(button) {
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.15) !important;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(16, 185, 129, 0.05));
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Buttons - ensure text is always visible */
+body.theme-emerald-modern button.shadow-lg,
+body.theme-emerald-modern .bg-gradient-to-r {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+  color: #ffffff !important;
+}
+
+.shadow-lg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-light), var(--accent-primary));
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+}
+
+.shadow-lg:hover::before {
+  transform: scaleX(1);
+}
+
+.shadow-lg:hover {
+  box-shadow: 0 25px 60px rgba(16, 185, 129, 0.25) !important;
+  transform: translateY(-12px) rotateY(5deg);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+/* Practice Areas */
+.hover\:border-amber-200:hover {
+  border-color: var(--accent-light) !important;
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.3);
+  transform: scale(1.05);
+}
+
+/* Contact Section */
+#contact {
+  background: linear-gradient(135deg, var(--primary-bg) 0%, var(--primary-bg-secondary) 50%, var(--accent-secondary) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+#contact::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 30% 70%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 70% 30%, rgba(5, 150, 105, 0.08) 0%, transparent 50%);
+  animation: energyWave 4s ease-in-out infinite;
+}
+
+/* Footer */
+footer {
+  background: linear-gradient(135deg, var(--primary-bg-secondary) 0%, var(--primary-bg) 100%);
+  position: relative;
+}
+
+footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+}
+
+/* ========================================
+   DYNAMIC ANIMATIONS
+   ======================================== */
+
+@media (min-width: 768px) {
+  .animate-dynamic-slide:nth-child(1) { animation-delay: 0.1s; }
+  .animate-dynamic-slide:nth-child(2) { animation-delay: 0.3s; }
+  .animate-dynamic-slide:nth-child(3) { animation-delay: 0.5s; }
+  .animate-dynamic-slide:nth-child(4) { animation-delay: 0.7s; }
+}
+
+/* ========================================
+   VIBRANT LOADING
+   ======================================== */
+
+.vibrant-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--primary-bg), var(--primary-bg-secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.vibrant-spinner {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.vibrant-spinner::before,
+.vibrant-spinner::after,
+.vibrant-spinner span {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: var(--accent-primary);
+  border-radius: 50%;
+  animation: vibrantBounce 1.5s ease-in-out infinite;
+}
+
+.vibrant-spinner::before {
+  top: 0;
+  left: 40px;
+  animation-delay: 0s;
+}
+
+.vibrant-spinner::after {
+  bottom: 0;
+  left: 40px;
+  animation-delay: 0.5s;
+}
+
+.vibrant-spinner span {
+  top: 40px;
+  right: 0;
+  animation-delay: 1s;
+}

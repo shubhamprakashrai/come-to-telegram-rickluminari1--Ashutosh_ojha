@@ -1,3 +1,10 @@
+/* Import all theme styles - must be first */
+@import './themes/blue-corporate.css';
+@import './themes/gold-elegant.css';
+@import './themes/emerald-modern.css';
+@import './themes/purple-minimal.css';
+@import './themes/sunset-warm.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
