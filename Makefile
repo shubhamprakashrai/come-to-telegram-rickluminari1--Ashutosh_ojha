@@ -1,178 +1,139 @@
-# Makefile for Ashutosh Ojha Project
-# Project: React + TypeScript + Vite + Firebase
+# ==============================================================================
+# ⚖️ Ashutosh Law Chambers - Master Automation Makefile
+# ==============================================================================
 
-.PHONY: help install dev build preview lint clean deploy deploy-preview git-push git-sync firebase-login firebase-info update-deps
+VPS_IP = 222.167.207.35
+SSH_KEY = ~/.ssh/toonshala_vps
+SSH_TARGET = root@$(VPS_IP)
+VPS_API_DIR = /opt/ashutosh-law-api-new/backend-api
 
-# Default target - show help
+.PHONY: help all \
+        web-dev web-build web-deploy web-clean \
+        mobile-run mobile-build-apk mobile-build-bundle mobile-icons mobile-clean \
+        api-dev api-deploy api-logs api-restart api-status \
+        deploy-all git-sync
+
+# ------------------------------------------------------------------------------
+# 📖 Help & Command List
+# ------------------------------------------------------------------------------
 help:
-	@echo "╔════════════════════════════════════════════════════════════════╗"
-	@echo "║          Ashutosh Ojha Project - Available Commands           ║"
-	@echo "╚════════════════════════════════════════════════════════════════╝"
+	@echo "========================================================================"
+	@echo "⚖️  ASHUTOSH LAW - MASTER DEVELOPMENT & DEPLOYMENT TOOLKIT"
+	@echo "========================================================================"
 	@echo ""
-	@echo "📦 Development:"
-	@echo "  make install        - Install dependencies"
-	@echo "  make dev            - Start development server"
-	@echo "  make build          - Build for production"
-	@echo "  make preview        - Preview production build locally"
-	@echo "  make lint           - Run ESLint"
-	@echo "  make clean          - Clean build artifacts"
+	@echo "📱 MOBILE APP (Flutter):"
+	@echo "  make mobile-run           - Run mobile app on connected device/emulator"
+	@echo "  make mobile-build-apk     - Build production APK with Obfuscation & Symbol Stripping"
+	@echo "  make mobile-build-bundle  - Build production AAB (App Bundle) with Obfuscation"
+	@echo "  make mobile-icons         - Re-generate luxury golden app launcher icons"
+	@echo "  make mobile-clean         - Clean Flutter build artifacts"
 	@echo ""
-	@echo "🚀 Deployment:"
-	@echo "  make deploy         - Build and deploy to Firebase"
-	@echo "  make deploy-preview - Deploy to Firebase preview channel"
-	@echo "  make firebase-login - Login to Firebase"
-	@echo "  make firebase-info  - Show Firebase project info"
+	@echo "🌐 WEB APPLICATION (Next.js & Firebase):"
+	@echo "  make web-dev              - Start local Next.js development server"
+	@echo "  make web-build            - Create optimized static production build"
+	@echo "  make web-deploy           - Build & deploy live to Firebase Hosting (ashutoshojha.com)"
+	@echo "  make web-clean            - Remove .next and out build caches"
 	@echo ""
-	@echo "📝 Git Operations:"
-	@echo "  make git-push MSG='message' - Add, commit, and push changes"
-	@echo "  make git-sync       - Pull latest changes from remote"
+	@echo "🛡️  BACKEND API & DATABASE (Rust Axum & VPS):"
+	@echo "  make api-dev              - Run local Rust backend server"
+	@echo "  make api-deploy           - Rsync to VPS, build Docker container & restart"
+	@echo "  make api-logs             - Stream live backend container logs on VPS"
+	@echo "  make api-restart          - Restart backend Docker container on VPS"
+	@echo "  make api-status           - Check VPS container health & PostgreSQL status"
 	@echo ""
-	@echo "🔧 Maintenance:"
-	@echo "  make update-deps    - Update dependencies"
-	@echo "  make update-browser - Update browserslist database"
-	@echo ""
+	@echo "🚀 COMPLETE SYSTEM:"
+	@echo "  make deploy-all           - Deploy both Web Frontend and VPS Backend API"
+	@echo "  make git-sync MSG=\"...\"    - Commit and push all changes to GitHub"
+	@echo "========================================================================"
 
-# Install dependencies
-install:
-	@echo "📦 Installing dependencies..."
-	npm install
-	@echo "✅ Dependencies installed successfully!"
+# ------------------------------------------------------------------------------
+# 📱 Mobile App Commands
+# ------------------------------------------------------------------------------
+mobile-run:
+	@echo "🚀 Launching Admin Mobile App..."
+	cd admin_mobile_app && flutter run
 
-# Start development server
-dev:
-	@echo "🚀 Starting development server..."
+mobile-icons:
+	@echo "🎨 Generating luxury app launcher icons..."
+	cd admin_mobile_app && flutter pub get && dart run flutter_launcher_icons
+
+mobile-build-apk: mobile-icons
+	@echo "📦 Building Production Release APK with Obfuscation..."
+	mkdir -p admin_mobile_app/build/app/outputs/symbols
+	cd admin_mobile_app && flutter build apk --release \
+		--obfuscate \
+		--split-debug-info=build/app/outputs/symbols \
+		--tree-shake-icons
+	@echo "✅ APK generated: admin_mobile_app/build/app/outputs/flutter-apk/app-release.apk"
+
+mobile-build-bundle: mobile-icons
+	@echo "📦 Building Production Release AppBundle with Obfuscation..."
+	mkdir -p admin_mobile_app/build/app/outputs/symbols
+	cd admin_mobile_app && flutter build appbundle --release \
+		--obfuscate \
+		--split-debug-info=build/app/outputs/symbols \
+		--tree-shake-icons
+	@echo "✅ AAB generated: admin_mobile_app/build/app/outputs/bundle/release/app-release.aab"
+
+mobile-clean:
+	@echo "🧹 Cleaning Flutter build cache..."
+	cd admin_mobile_app && flutter clean && flutter pub get
+
+# ------------------------------------------------------------------------------
+# 🌐 Web App Commands
+# ------------------------------------------------------------------------------
+web-dev:
+	@echo "💻 Starting Next.js development server..."
 	npm run dev
 
-# Build for production
-build:
-	@echo "🔨 Building for production..."
+web-build:
+	@echo "🏗️ Building Next.js production bundle..."
 	npm run build
-	@echo "✅ Build completed! Output in dist/"
 
-# Preview production build
-preview:
-	@echo "👀 Previewing production build..."
-	npm run preview
-
-# Run linter
-lint:
-	@echo "🔍 Running ESLint..."
-	npm run lint
-
-# Clean build artifacts
-clean:
-	@echo "🧹 Cleaning build artifacts..."
-	rm -rf dist
-	rm -rf node_modules/.vite
-	@echo "✅ Clean completed!"
-
-# Full clean (including node_modules)
-clean-all: clean
-	@echo "🧹 Removing node_modules..."
-	rm -rf node_modules
-	rm -rf package-lock.json
-	@echo "✅ Full clean completed!"
-
-# Deploy to Firebase
-deploy: build
-	@echo "🚀 Deploying to Firebase..."
+web-deploy: web-build
+	@echo "🚀 Deploying web portal to Firebase Hosting..."
 	firebase deploy --only hosting
-	@echo "✅ Deployment completed!"
-	@echo "🌐 Live at: https://ashutosh-ojha-18afc.web.app"
 
-# Deploy to Firebase preview channel
-deploy-preview: build
-	@echo "🚀 Deploying to Firebase preview channel..."
-	firebase hosting:channel:deploy preview
-	@echo "✅ Preview deployment completed!"
+web-clean:
+	@echo "🧹 Cleaning Next.js build cache..."
+	rm -rf .next out
 
-# Firebase login
-firebase-login:
-	@echo "🔐 Logging in to Firebase..."
-	firebase login
+# ------------------------------------------------------------------------------
+# 🛡️ Backend API Commands
+# ------------------------------------------------------------------------------
+api-dev:
+	@echo "🦀 Running Rust backend locally..."
+	cd backend-api && cargo run
 
-# Show Firebase project info
-firebase-info:
-	@echo "ℹ️  Firebase Project Information:"
-	@echo ""
-	firebase projects:list
-	@echo ""
-	@echo "Current project:"
-	firebase use
+api-deploy:
+	@echo "🚀 Syncing backend files to VPS ($(VPS_IP))..."
+	rsync -avz -e "ssh -i $(SSH_KEY)" --exclude 'target' --exclude '.git' backend-api/ $(SSH_TARGET):$(VPS_API_DIR)/
+	@echo "🔨 Building Docker image & starting container on VPS..."
+	ssh -i $(SSH_KEY) $(SSH_TARGET) "cd $(VPS_API_DIR) && docker build -t ashutosh-law-api-backend:latest --network=host . && docker compose up -d --force-recreate api"
+	@echo "✅ Backend deployed and restarted on VPS!"
 
-# Git operations - add, commit, and push
-git-push:
-ifndef MSG
-	@echo "❌ Error: Please provide a commit message"
-	@echo "Usage: make git-push MSG='your commit message'"
-	@exit 1
-endif
-	@echo "📝 Adding changes..."
-	git add .
-	@echo "💾 Committing changes..."
-	git commit -m "$(MSG)"
-	@echo "⬆️  Pushing to remote..."
-	git push origin main
-	@echo "✅ Changes pushed successfully!"
+api-logs:
+	@echo "📜 Streaming VPS Backend Logs..."
+	ssh -i $(SSH_KEY) $(SSH_TARGET) "docker logs backend-api-api-1 -f --tail 100"
 
-# Pull latest changes
+api-restart:
+	@echo "🔄 Restarting Backend on VPS..."
+	ssh -i $(SSH_KEY) $(SSH_TARGET) "cd $(VPS_API_DIR) && docker compose restart api"
+
+api-status:
+	@echo "🩺 Checking VPS Backend Health..."
+	ssh -i $(SSH_KEY) $(SSH_TARGET) "docker ps --filter name=backend-api"
+	@echo "🌐 Testing API endpoint:"
+	curl -s https://ashutosh-api.toonshala.com/health || echo "API unreachable"
+
+# ------------------------------------------------------------------------------
+# 🚀 Master Deploy & Git
+# ------------------------------------------------------------------------------
+deploy-all: api-deploy web-deploy
+	@echo "🎉 Complete platform (Backend + Frontend) successfully deployed!"
+
 git-sync:
-	@echo "⬇️  Pulling latest changes..."
-	git pull origin main
-	@echo "✅ Synced with remote!"
-
-# Update dependencies
-update-deps:
-	@echo "🔄 Updating dependencies..."
-	npm update
-	@echo "✅ Dependencies updated!"
-
-# Update browserslist database
-update-browser:
-	@echo "🔄 Updating browserslist database..."
-	npx update-browserslist-db@latest
-	@echo "✅ Browserslist updated!"
-
-# Quick deploy (build + deploy + git push)
-quick-deploy:
-ifndef MSG
-	@echo "❌ Error: Please provide a commit message"
-	@echo "Usage: make quick-deploy MSG='your commit message'"
-	@exit 1
-endif
-	@echo "🚀 Starting quick deploy..."
-	@$(MAKE) build
-	@$(MAKE) git-push MSG="$(MSG)"
-	@$(MAKE) deploy
-	@echo "✅ Quick deploy completed!"
-
-# Development setup (first time)
-setup: install
-	@echo "🔧 Running initial setup..."
-	@echo "✅ Setup completed!"
-	@echo ""
-	@echo "Next steps:"
-	@echo "  1. Run 'make dev' to start development server"
-	@echo "  2. Run 'make firebase-login' if not logged in to Firebase"
-	@echo "  3. Run 'make deploy' to deploy to production"
-
-# Check project status
-status:
-	@echo "📊 Project Status:"
-	@echo ""
-	@echo "Git Status:"
-	@git status --short
-	@echo ""
-	@echo "Firebase Project:"
-	@firebase use
-	@echo ""
-	@echo "Node Version:"
-	@node --version
-	@echo ""
-	@echo "NPM Version:"
-	@npm --version
-
-# Run all checks before deployment
-pre-deploy: lint build
-	@echo "✅ All pre-deployment checks passed!"
-	@echo "Ready to deploy with: make deploy"
+	@echo "📦 Syncing repository..."
+	git add .
+	git commit -m "$${MSG:-chore: update codebase and sync deployment changes}" || true
+	git push
