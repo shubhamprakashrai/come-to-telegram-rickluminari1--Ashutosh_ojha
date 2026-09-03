@@ -19,7 +19,7 @@ export default function ContactForm() {
     setStatus('loading');
 
     try {
-      const response = await fetch('http://222.167.207.35:8080/api/contact', {
+      const response = await fetch('https://ashutosh-api.toonshala.com/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

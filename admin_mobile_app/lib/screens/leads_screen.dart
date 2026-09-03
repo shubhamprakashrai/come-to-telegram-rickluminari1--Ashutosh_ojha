@@ -14,7 +14,7 @@ class _LeadsScreenState extends State<LeadsScreen> {
   bool _isLoading = true;
   String? _error;
 
-  static const String _apiBase = 'http://222.167.207.35:8080';
+  static const String _apiBase = 'https://ashutosh-api.toonshala.com';
 
   @override
   void initState() {
