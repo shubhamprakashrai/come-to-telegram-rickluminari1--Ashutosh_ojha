@@ -1,0 +1,12 @@
+/Users/admin/Documents/learning/react-native-learn/come-to-telegram-rickluminari1--Ashutosh_ojha/backend-api/target/debug/deps/thiserror-82f22c2754472593.d: /Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.20/src/lib.rs /Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.20/src/aserror.rs /Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.20/src/display.rs /Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.20/src/var.rs /Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.20/src/private.rs /Users/admin/Documents/learning/react-native-learn/come-to-telegram-rickluminari1--Ashutosh_ojha/backend-api/target/debug/build/thiserror-d892b12406f3b6ed/out/private.rs
+
+/Users/admin/Documents/learning/react-native-learn/come-to-telegram-rickluminari1--Ashutosh_ojha/backend-api/target/debug/deps/libthiserror-82f22c2754472593.rmeta: /Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.20/src/lib.rs /Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.20/src/aserror.rs /Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.20/src/display.rs /Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.20/src/var.rs /Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.20/src/private.rs /Users/admin/Documents/learning/react-native-learn/come-to-telegram-rickluminari1--Ashutosh_ojha/backend-api/target/debug/build/thiserror-d892b12406f3b6ed/out/private.rs
+
+/Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.20/src/lib.rs:
+/Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.20/src/aserror.rs:
+/Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.20/src/display.rs:
+/Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.20/src/var.rs:
+/Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.20/src/private.rs:
+/Users/admin/Documents/learning/react-native-learn/come-to-telegram-rickluminari1--Ashutosh_ojha/backend-api/target/debug/build/thiserror-d892b12406f3b6ed/out/private.rs:
+
+# env-dep:OUT_DIR=/Users/admin/Documents/learning/react-native-learn/come-to-telegram-rickluminari1--Ashutosh_ojha/backend-api/target/debug/build/thiserror-d892b12406f3b6ed/out

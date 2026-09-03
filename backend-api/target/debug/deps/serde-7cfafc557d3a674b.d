@@ -1,0 +1,12 @@
+/Users/admin/Documents/learning/react-native-learn/come-to-telegram-rickluminari1--Ashutosh_ojha/backend-api/target/debug/deps/serde-7cfafc557d3a674b.d: /Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/lib.rs /Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/integer128.rs /Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/mod.rs /Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/de.rs /Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/ser.rs /Users/admin/Documents/learning/react-native-learn/come-to-telegram-rickluminari1--Ashutosh_ojha/backend-api/target/debug/build/serde-e41c85a50fbfecaf/out/private.rs
+
+/Users/admin/Documents/learning/react-native-learn/come-to-telegram-rickluminari1--Ashutosh_ojha/backend-api/target/debug/deps/libserde-7cfafc557d3a674b.rmeta: /Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/lib.rs /Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/integer128.rs /Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/mod.rs /Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/de.rs /Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/ser.rs /Users/admin/Documents/learning/react-native-learn/come-to-telegram-rickluminari1--Ashutosh_ojha/backend-api/target/debug/build/serde-e41c85a50fbfecaf/out/private.rs
+
+/Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/lib.rs:
+/Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/integer128.rs:
+/Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/mod.rs:
+/Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/de.rs:
+/Users/admin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/ser.rs:
+/Users/admin/Documents/learning/react-native-learn/come-to-telegram-rickluminari1--Ashutosh_ojha/backend-api/target/debug/build/serde-e41c85a50fbfecaf/out/private.rs:
+
+# env-dep:OUT_DIR=/Users/admin/Documents/learning/react-native-learn/come-to-telegram-rickluminari1--Ashutosh_ojha/backend-api/target/debug/build/serde-e41c85a50fbfecaf/out

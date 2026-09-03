@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ashutosh_admin
+      POSTGRES_PASSWORD: secure_password_123
+      POSTGRES_DB: law_db
+    # We do NOT expose port 5432 to the host machine to avoid conflict with the existing database.
+    # The API container can still connect to it on port 5432 via the Docker network.
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build: .
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      # Connect using the docker service name "db"
+      DATABASE_URL: postgres://ashutosh_admin:secure_password_123@db:5432/law_db
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
