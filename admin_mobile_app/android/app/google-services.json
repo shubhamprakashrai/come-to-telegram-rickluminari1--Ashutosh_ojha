@@ -12,7 +12,20 @@
           "package_name": "com.ashutoshlaw.admin_mobile_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "344994341820-7jtb8c9hh2phidn0jf2jebj5pja73d87.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ashutoshlaw.admin_mobile_app",
+            "certificate_hash": "8767dc59bf2de3326a22550de85c7ea3717f5ce9"
+          }
+        },
+        {
+          "client_id": "344994341820-t3smn7tcb6qucfinr4h8gnu18aoitta2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBvsRU30cGVyu44C4Bp7TSqsGdV5F4RYI8"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "344994341820-t3smn7tcb6qucfinr4h8gnu18aoitta2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
