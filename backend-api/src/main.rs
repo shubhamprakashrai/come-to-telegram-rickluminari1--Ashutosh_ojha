@@ -38,6 +38,7 @@ async fn main() {
     let app = Router::new()
         .route("/api/health", get(health_check))
         .route("/api/contact", post(submit_contact_form))
+        .route("/api/leads", get(get_leads))
         .layer(cors)
         .with_state(state);
 
@@ -85,6 +86,24 @@ async fn submit_contact_form(
         }
         Err(e) => {
             error!("Failed to insert lead: {}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()))
+        }
+    }
+}
+
+async fn get_leads(
+    State(state): State<AppState>,
+) -> Result<Json<Value>, (StatusCode, String)> {
+    let rows = sqlx::query_as::<_, Lead>(
+        "SELECT id, name, email, phone, query_type, message, created_at FROM leads ORDER BY created_at DESC"
+    )
+    .fetch_all(&state.db)
+    .await;
+
+    match rows {
+        Ok(leads) => Ok(Json(json!(leads))),
+        Err(e) => {
+            error!("Failed to fetch leads: {}", e);
             Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()))
         }
     }
