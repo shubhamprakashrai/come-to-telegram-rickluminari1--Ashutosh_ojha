@@ -1,23 +1,40 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Scale, CheckCircle } from 'lucide-react';
+import { Scale, CheckCircle, X } from 'lucide-react';
 
 export default function DisclaimerModal() {
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [isManuallyOpened, setIsManuallyOpened] = useState(false);
 
   useEffect(() => {
     const hasAccepted = localStorage.getItem('disclaimerAccepted');
     if (!hasAccepted) {
       setShowDisclaimer(true);
-      document.body.style.overflow = 'hidden'; // Prevent scrolling while modal is open
+      document.body.style.overflow = 'hidden';
     }
+
+    const handleOpen = () => {
+      setIsManuallyOpened(true);
+      setShowDisclaimer(true);
+      document.body.style.overflow = 'hidden';
+    };
+
+    window.addEventListener('openDisclaimer', handleOpen);
+    return () => window.removeEventListener('openDisclaimer', handleOpen);
   }, []);
 
   const handleAcceptDisclaimer = () => {
     localStorage.setItem('disclaimerAccepted', 'true');
     setShowDisclaimer(false);
-    document.body.style.overflow = 'auto'; // Restore scrolling
+    setIsManuallyOpened(false);
+    document.body.style.overflow = 'auto';
+  };
+
+  const handleClose = () => {
+    setShowDisclaimer(false);
+    setIsManuallyOpened(false);
+    document.body.style.overflow = 'auto';
   };
 
   return (
@@ -40,12 +57,23 @@ export default function DisclaimerModal() {
             <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-[80px] pointer-events-none"></div>
 
             {/* Header */}
-            <div className="bg-slate-900/50 backdrop-blur-sm border-b border-white/5 px-6 py-5 flex items-center relative z-10">
-              <Scale className="w-8 h-8 text-amber-500 mr-3" />
-              <div>
-                <h2 className="text-xl md:text-2xl font-bold text-white tracking-wide">DISCLAIMER</h2>
-                <p className="text-amber-400 text-xs uppercase tracking-widest mt-1">Bar Council of India Rules</p>
+            <div className="bg-slate-900/50 backdrop-blur-sm border-b border-white/5 px-6 py-5 flex items-center justify-between relative z-10">
+              <div className="flex items-center">
+                <Scale className="w-8 h-8 text-amber-500 mr-3 shrink-0" />
+                <div>
+                  <h2 className="text-xl md:text-2xl font-bold text-white tracking-wide">LEGAL DISCLAIMER</h2>
+                  <p className="text-amber-400 text-xs uppercase tracking-widest mt-0.5">Bar Council of India Rules</p>
+                </div>
               </div>
+
+              {isManuallyOpened && (
+                <button
+                  onClick={handleClose}
+                  className="p-2 text-gray-400 hover:text-white rounded-full hover:bg-white/10 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              )}
             </div>
 
             {/* Content */}
@@ -96,7 +124,7 @@ export default function DisclaimerModal() {
                 className="w-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-amber-500/20 transform hover:-translate-y-0.5 flex items-center justify-center group"
               >
                 <CheckCircle className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-                I Agree & Accept
+                I Agree &amp; Accept
               </button>
             </div>
           </motion.div>

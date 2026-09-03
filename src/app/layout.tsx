@@ -2,7 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Background3D from "@/components/Background3D";
+import DisclaimerModal from "@/components/DisclaimerModal";
 import { AuthProvider } from "@/components/AuthProvider";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -112,6 +114,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-full flex flex-col relative bg-slate-900 text-white">
         <Background3D />
+        <DisclaimerModal />
         <AuthProvider>
           <div className="relative z-10">{children}</div>
         </AuthProvider>
