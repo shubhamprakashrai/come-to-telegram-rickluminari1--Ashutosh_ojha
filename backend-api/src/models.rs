@@ -26,3 +26,22 @@ pub struct Lead {
 pub struct RegisterTokenRequest {
     pub token: String,
 }
+
+#[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
+pub struct AdminUser {
+    pub id: Uuid,
+    pub email: String,
+    pub role: String,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AddAdminRequest {
+    pub email: String,
+    pub role: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct VerifyAdminRequest {
+    pub email: String,
+}

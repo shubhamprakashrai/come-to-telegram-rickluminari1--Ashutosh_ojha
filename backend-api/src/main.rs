@@ -3,8 +3,8 @@ mod fcm;
 mod models;
 
 use axum::{
-    extract::State,
-    routing::{get, post},
+    extract::{Path, State},
+    routing::{delete, get, post},
     Router,
     Json,
     http::StatusCode,
@@ -14,7 +14,7 @@ use tower_http::cors::{Any, CorsLayer};
 use std::net::SocketAddr;
 use tracing::{info, error};
 use sqlx::PgPool;
-use models::{ContactFormRequest, Lead, RegisterTokenRequest};
+use models::{ContactFormRequest, Lead, RegisterTokenRequest, AdminUser, AddAdminRequest, VerifyAdminRequest};
 
 #[derive(Clone)]
 struct AppState {
@@ -41,6 +41,10 @@ async fn main() {
         .route("/api/leads", get(get_leads))
         .route("/api/dashboard", get(get_dashboard))
         .route("/api/register-token", post(register_token))
+        .route("/api/admins", get(get_admins))
+        .route("/api/admins/verify", post(verify_admin))
+        .route("/api/admins", post(add_admin))
+        .route("/api/admins/:id", delete(delete_admin))
         .layer(cors)
         .with_state(state);
 
@@ -157,4 +161,99 @@ async fn get_dashboard(
         "today_leads": today.0,
         "week_leads": this_week.0
     })))
+}
+
+async fn get_admins(
+    State(state): State<AppState>,
+) -> Result<Json<Value>, (StatusCode, String)> {
+    let rows = sqlx::query_as::<_, AdminUser>(
+        "SELECT id, email, role, created_at FROM admin_users ORDER BY created_at ASC"
+    )
+    .fetch_all(&state.db)
+    .await;
+
+    match rows {
+        Ok(admins) => Ok(Json(json!(admins))),
+        Err(e) => {
+            error!("Failed to fetch admins: {}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()))
+        }
+    }
+}
+
+async fn verify_admin(
+    State(state): State<AppState>,
+    Json(payload): Json<VerifyAdminRequest>,
+) -> Result<Json<Value>, (StatusCode, String)> {
+    let normalized_email = payload.email.trim().to_lowercase();
+    let row = sqlx::query_as::<_, AdminUser>(
+        "SELECT id, email, role, created_at FROM admin_users WHERE LOWER(email) = $1"
+    )
+    .bind(normalized_email)
+    .fetch_optional(&state.db)
+    .await;
+
+    match row {
+        Ok(Some(admin)) => Ok(Json(json!({
+            "authorized": true,
+            "role": admin.role,
+            "email": admin.email
+        }))),
+        Ok(None) => Ok(Json(json!({
+            "authorized": false,
+            "message": "User not authorized"
+        }))),
+        Err(e) => {
+            error!("Error verifying admin: {}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()))
+        }
+    }
+}
+
+async fn add_admin(
+    State(state): State<AppState>,
+    Json(payload): Json<AddAdminRequest>,
+) -> Result<Json<Value>, (StatusCode, String)> {
+    let email = payload.email.trim().to_lowercase();
+    let role = payload.role.unwrap_or_else(|| "admin".to_string());
+
+    let result = sqlx::query(
+        "INSERT INTO admin_users (email, role) VALUES ($1, $2) ON CONFLICT (email) DO UPDATE SET role = $2"
+    )
+    .bind(&email)
+    .bind(&role)
+    .execute(&state.db)
+    .await;
+
+    match result {
+        Ok(_) => {
+            info!("Successfully added/updated admin: {}", email);
+            Ok(Json(json!({ "status": "success", "message": "Admin added successfully" })))
+        }
+        Err(e) => {
+            error!("Failed to add admin: {}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()))
+        }
+    }
+}
+
+async fn delete_admin(
+    State(state): State<AppState>,
+    Path(id): Path<uuid::Uuid>,
+) -> Result<Json<Value>, (StatusCode, String)> {
+    let result = sqlx::query("DELETE FROM admin_users WHERE id = $1")
+        .bind(id)
+        .execute(&state.db)
+        .await;
+
+    match result {
+        Ok(_) => {
+            info!("Deleted admin: {}", id);
+            Ok(Json(json!({ "status": "success", "message": "Admin removed" })))
+        }
+        Err(e) => {
+            error!("Failed to delete admin: {}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()))
+        }
+    }
 }

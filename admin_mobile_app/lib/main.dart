@@ -7,6 +7,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/login_screen.dart';
 import 'firebase_options.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -64,13 +66,26 @@ class AdminApp extends StatelessWidget {
   }
 }
 
-// Allowed admin emails
-const List<String> _adminEmails = [
-  'ashishraimsd@gmail.com',
-];
-
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
+
+  Future<bool> _checkAdminStatus(String email) async {
+    try {
+      final response = await http.post(
+        Uri.parse('https://ashutosh-api.toonshala.com/api/admins/verify'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'email': email}),
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['authorized'] == true;
+      }
+      return false;
+    } catch (e) {
+      debugPrint('Error verifying admin: $e');
+      return false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,29 +99,49 @@ class AuthGate extends StatelessWidget {
         }
         if (snapshot.hasData) {
           final email = snapshot.data?.email ?? '';
-          if (_adminEmails.contains(email)) {
-            return const DashboardScreen();
-          }
-          // Not authorized — sign out and show access denied
-          FirebaseAuth.instance.signOut();
-          return Scaffold(
-            backgroundColor: const Color(0xFF0F172A),
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.block_rounded, size: 64, color: Colors.redAccent),
-                  const SizedBox(height: 20),
-                  const Text('Access Denied', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  Text(
-                    '$email\nis not an authorized admin.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white.withOpacity(0.5)),
+          return FutureBuilder<bool>(
+            future: _checkAdminStatus(email),
+            builder: (context, authSnapshot) {
+              if (authSnapshot.connectionState == ConnectionState.waiting) {
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator(color: Color(0xFFD97706))),
+                );
+              }
+
+              if (authSnapshot.data == true) {
+                return const DashboardScreen();
+              }
+
+              // Not authorized — sign out and show access denied
+              FirebaseAuth.instance.signOut();
+              return Scaffold(
+                backgroundColor: const Color(0xFF0F172A),
+                body: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.block_rounded, size: 64, color: Colors.redAccent),
+                      const SizedBox(height: 20),
+                      const Text('Access Denied', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 8),
+                      Text(
+                        '$email\nis not registered in admin database.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white.withOpacity(0.5)),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
+                        },
+                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD97706)),
+                        child: const Text('Back to Login', style: TextStyle(color: Colors.white)),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           );
         }
         return const LoginScreen();
@@ -114,3 +149,4 @@ class AuthGate extends StatelessWidget {
     );
   }
 }
+

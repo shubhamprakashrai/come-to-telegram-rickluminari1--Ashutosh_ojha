@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'leads_screen.dart';
+import 'admin_management_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -280,6 +281,15 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                         iconColor: const Color(0xFFD97706),
                         badge: _todayLeads > 0 ? '$_todayLeads new' : null,
                         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LeadsScreen())),
+                      ),
+                      const SizedBox(height: 12),
+                      _ActionCard(
+                        title: 'Manage Admins',
+                        subtitle: 'Add or remove team access',
+                        icon: Icons.admin_panel_settings_rounded,
+                        gradient: [const Color(0xFF10B981).withOpacity(0.15), const Color(0xFF059669).withOpacity(0.05)],
+                        iconColor: const Color(0xFF10B981),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminManagementScreen())),
                       ),
                       const SizedBox(height: 12),
                       _ActionCard(

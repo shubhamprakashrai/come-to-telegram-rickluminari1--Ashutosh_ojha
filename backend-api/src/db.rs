@@ -41,5 +41,22 @@ pub async fn init_db() -> Result<PgPool, sqlx::Error> {
     .execute(&pool)
     .await?;
 
+    // Create admin_users table
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS admin_users (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            email VARCHAR(255) UNIQUE NOT NULL,
+            role VARCHAR(50) NOT NULL DEFAULT 'admin',
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+        INSERT INTO admin_users (email, role) 
+        VALUES ('ashishraimsd@gmail.com', 'superadmin')
+        ON CONFLICT (email) DO NOTHING;
+        "#,
+    )
+    .execute(&pool)
+    .await?;
+
     Ok(pool)
 }
