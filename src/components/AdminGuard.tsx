@@ -1,52 +1,51 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from './AuthProvider';
-import { Loader2, ShieldAlert } from 'lucide-react';
+import { fetchEncryptedJson } from '@/lib/apiCrypto';
+import { Loader2, ShieldAlert, WifiOff } from 'lucide-react';
+
+type VerifyResult = { authorized: boolean };
 
 export default function AdminGuard({ children }: { children: React.ReactNode }) {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [isVerifying, setIsVerifying] = useState(false);
-  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  // null = not yet checked, true/false = explicit server answer, 'error' = couldn't reach server (retryable, NOT a denial)
+  const [authState, setAuthState] = useState<boolean | null | 'error'>(null);
+
+  const verifyWithBackend = useCallback(async (email: string) => {
+    setIsVerifying(true);
+    try {
+      const data = await fetchEncryptedJson<VerifyResult>('https://ashutosh-api.toonshala.com/api/admins/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      setAuthState(data.authorized === true);
+    } catch (err) {
+      // Network failure / server down / bad decrypt — do NOT treat as unauthorized.
+      // Doing so would sign real admins out just because the API blipped.
+      console.error('Failed to verify admin via server', err);
+      setAuthState('error');
+    } finally {
+      setIsVerifying(false);
+    }
+  }, []);
 
   useEffect(() => {
-    async function verifyWithBackend(email: string) {
-      setIsVerifying(true);
-      try {
-        const res = await fetch('https://ashutosh-api.toonshala.com/api/admins/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email }),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setIsAuthorized(data.authorized === true);
-        } else {
-          setIsAuthorized(false);
-        }
-      } catch (err) {
-        console.error('Failed to verify admin via server', err);
-        setIsAuthorized(false);
-      } finally {
-        setIsVerifying(false);
-      }
-    }
-
     if (!loading) {
       if (!user) {
         if (pathname !== '/admin/login') {
           router.push('/admin/login');
         }
-        setIsAuthorized(null);
-      } else {
-        if (user.email) {
-          verifyWithBackend(user.email);
-        }
+        setAuthState(null);
+      } else if (user.email) {
+        verifyWithBackend(user.email);
       }
     }
-  }, [user, loading, pathname, router]);
+  }, [user, loading, pathname, router, verifyWithBackend]);
 
   if (loading || isVerifying) {
     return (
@@ -62,8 +61,30 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
     return <>{children}</>;
   }
 
+  // Couldn't reach the verify API at all — show a retry screen, never kick the user back to login.
+  if (user && authState === 'error' && pathname !== '/admin/login') {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 p-6 text-center">
+        <div className="w-16 h-16 bg-amber-500/10 rounded-2xl flex items-center justify-center mb-4 border border-amber-500/20">
+          <WifiOff className="w-8 h-8 text-amber-400" />
+        </div>
+        <h2 className="text-2xl font-bold text-white mb-2">Can't Reach Server</h2>
+        <p className="text-gray-400 text-sm max-w-md mb-6">
+          The verification server didn&apos;t respond. You&apos;re still signed in as{' '}
+          <span className="text-amber-400 font-semibold">{user.email}</span> — this will retry automatically.
+        </p>
+        <button
+          onClick={() => user.email && verifyWithBackend(user.email)}
+          className="px-6 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-sm font-medium transition-all"
+        >
+          Retry Now
+        </button>
+      </div>
+    );
+  }
+
   // If logged in but not authorized in database
-  if (user && isAuthorized === false && pathname !== '/admin/login') {
+  if (user && authState === false && pathname !== '/admin/login') {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 p-6 text-center">
         <div className="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center mb-4 border border-red-500/20">
@@ -84,7 +105,7 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
   }
 
   // If logged in and authorized
-  if (user && isAuthorized === true && pathname !== '/admin/login') {
+  if (user && authState === true && pathname !== '/admin/login') {
     return <>{children}</>;
   }
 

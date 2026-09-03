@@ -1,5 +1,6 @@
 'use client';
 import { useAuth } from '@/components/AuthProvider';
+import { fetchEncryptedJson, decryptEnvelope } from '@/lib/apiCrypto';
 import { LogOut, PenTool, LayoutDashboard, Users, Plus, Trash2, Shield, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
@@ -24,11 +25,8 @@ export default function AdminDashboard() {
   const fetchAdmins = async () => {
     setLoadingAdmins(true);
     try {
-      const res = await fetch('https://ashutosh-api.toonshala.com/api/admins');
-      if (res.ok) {
-        const data = await res.json();
-        setAdmins(data);
-      }
+      const data = await fetchEncryptedJson<AdminUser[]>('https://ashutosh-api.toonshala.com/api/admins');
+      setAdmins(data);
     } catch (e) {
       console.error(e);
     } finally {
@@ -56,6 +54,7 @@ export default function AdminDashboard() {
       });
 
       if (res.ok) {
+        await decryptEnvelope(await res.json());
         setMsg({ text: `Admin ${newEmail} added to PostgreSQL!` });
         setNewEmail('');
         fetchAdmins();

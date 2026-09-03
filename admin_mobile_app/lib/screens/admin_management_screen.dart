@@ -1,6 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import '../services/api_crypto.dart';
 
 class AdminManagementScreen extends StatefulWidget {
   const AdminManagementScreen({super.key});
@@ -24,18 +23,11 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
   Future<void> _fetchAdmins() async {
     setState(() { _isLoading = true; _error = null; });
     try {
-      final res = await http.get(Uri.parse('$_apiBase/api/admins'));
-      if (res.statusCode == 200) {
-        setState(() {
-          _admins = json.decode(res.body);
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _error = 'Failed to load admins (${res.statusCode})';
-          _isLoading = false;
-        });
-      }
+      final data = await ApiClient.get('$_apiBase/api/admins');
+      setState(() {
+        _admins = data;
+        _isLoading = false;
+      });
     } catch (e) {
       setState(() {
         _error = 'Connection failed';
@@ -103,18 +95,14 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
                 Navigator.pop(ctx);
                 
                 try {
-                  final res = await http.post(
-                    Uri.parse('$_apiBase/api/admins'),
-                    headers: {'Content-Type': 'application/json'},
-                    body: json.encode({'email': email, 'role': role}),
+                  await ApiClient.post('$_apiBase/api/admins', {'email': email, 'role': role});
+                  _fetchAdmins();
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Admin $email added successfully!'), backgroundColor: const Color(0xFF10B981)),
                   );
-                  if (res.statusCode == 200) {
-                    _fetchAdmins();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Admin $email added successfully!'), backgroundColor: const Color(0xFF10B981)),
-                    );
-                  }
                 } catch (e) {
+                  if (!mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Failed to add admin'), backgroundColor: Colors.redAccent),
                   );
@@ -154,14 +142,14 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
     if (confirm != true) return;
 
     try {
-      final res = await http.delete(Uri.parse('$_apiBase/api/admins/$id'));
-      if (res.statusCode == 200) {
-        _fetchAdmins();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$email removed from admins'), backgroundColor: const Color(0xFF1E293B)),
-        );
-      }
+      await ApiClient.delete('$_apiBase/api/admins/$id');
+      _fetchAdmins();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$email removed from admins'), backgroundColor: const Color(0xFF1E293B)),
+      );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error deleting admin'), backgroundColor: Colors.redAccent),
       );

@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'leads_screen.dart';
 import 'admin_management_screen.dart';
+import '../services/api_crypto.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -41,15 +42,12 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
 
   Future<void> _fetchDashboard() async {
     try {
-      final resp = await http.get(Uri.parse('$_apiBase/api/dashboard'));
-      if (resp.statusCode == 200) {
-        final data = json.decode(resp.body);
-        setState(() {
-          _totalLeads = data['total_leads'] ?? 0;
-          _todayLeads = data['today_leads'] ?? 0;
-          _weekLeads = data['week_leads'] ?? 0;
-        });
-      }
+      final data = await ApiClient.get('$_apiBase/api/dashboard');
+      setState(() {
+        _totalLeads = data['total_leads'] ?? 0;
+        _todayLeads = data['today_leads'] ?? 0;
+        _weekLeads = data['week_leads'] ?? 0;
+      });
     } catch (e) {
       debugPrint('Failed to fetch dashboard: $e');
     }

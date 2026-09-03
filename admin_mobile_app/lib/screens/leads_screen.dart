@@ -1,6 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
+import '../services/api_crypto.dart';
 
 class LeadsScreen extends StatefulWidget {
   const LeadsScreen({super.key});
@@ -36,16 +36,12 @@ class _LeadsScreenState extends State<LeadsScreen> with SingleTickerProviderStat
   Future<void> _fetchLeads() async {
     setState(() { _isLoading = true; _error = null; });
     try {
-      final response = await http.get(Uri.parse('$_apiBase/api/leads'));
-      if (response.statusCode == 200) {
-        setState(() {
-          _leads = json.decode(response.body);
-          _isLoading = false;
-        });
-        _animController.forward(from: 0.0);
-      } else {
-        setState(() { _error = 'Server error (${response.statusCode})'; _isLoading = false; });
-      }
+      final data = await ApiClient.get('$_apiBase/api/leads');
+      setState(() {
+        _leads = data;
+        _isLoading = false;
+      });
+      _animController.forward(from: 0.0);
     } catch (e) {
       setState(() { _error = 'Cannot connect to server'; _isLoading = false; });
     }
@@ -196,6 +192,16 @@ class _LeadsScreenState extends State<LeadsScreen> with SingleTickerProviderStat
   }
 }
 
+Future<void> _callPhone(BuildContext context, String phone) async {
+  final uri = Uri(scheme: 'tel', path: phone);
+  final launched = await launchUrl(uri);
+  if (!launched && context.mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Could not open dialer'), backgroundColor: Colors.redAccent),
+    );
+  }
+}
+
 class _LeadCard extends StatelessWidget {
   final Map<String, dynamic> lead;
   const _LeadCard({required this.lead});
@@ -204,6 +210,7 @@ class _LeadCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final name = lead['name'] ?? 'Unknown';
     final email = lead['email'] ?? '';
+    final phone = lead['phone'] ?? '';
     final queryType = lead['query_type'] ?? 'General';
     final initial = name.isNotEmpty ? name[0].toUpperCase() : 'A';
 
@@ -290,9 +297,41 @@ class _LeadCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                  if (phone.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Icon(Icons.phone_outlined, size: 14, color: Colors.white.withOpacity(0.35)),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            phone,
+                            style: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 12),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
+            if (phone.isNotEmpty) ...[
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: () => _callPhone(context, phone),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10B981).withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFF10B981).withOpacity(0.3)),
+                  ),
+                  child: const Icon(Icons.call_rounded, color: Color(0xFF10B981), size: 18),
+                ),
+              ),
+            ],
             const SizedBox(width: 8),
             Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.white.withOpacity(0.25)),
           ],
@@ -335,6 +374,70 @@ class LeadDetailScreen extends StatelessWidget {
             SelectableText(
               value,
               style: const TextStyle(color: Colors.white, fontSize: 15, height: 1.4),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPhoneField(BuildContext context, String? value) {
+    if (value == null || value.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.04),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white.withOpacity(0.06)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.phone_outlined, size: 15, color: Color(0xFFD97706)),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'PHONE NUMBER',
+                        style: TextStyle(fontSize: 11, color: Color(0xFFD97706), fontWeight: FontWeight.w700, letterSpacing: 1.2),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  SelectableText(
+                    value,
+                    style: const TextStyle(color: Colors.white, fontSize: 15, height: 1.4),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            GestureDetector(
+              onTap: () => _callPhone(context, value),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(colors: [Color(0xFF10B981), Color(0xFF059669)]),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(color: const Color(0xFF10B981).withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4)),
+                  ],
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.call_rounded, color: Colors.white, size: 18),
+                    SizedBox(width: 6),
+                    Text('Call', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14)),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
@@ -450,7 +553,7 @@ class LeadDetailScreen extends StatelessWidget {
                       const SizedBox(height: 24),
 
                       _buildField('EMAIL ADDRESS', lead['email'], Icons.email_outlined),
-                      _buildField('PHONE NUMBER', lead['phone'], Icons.phone_outlined),
+                      _buildPhoneField(context, lead['phone']),
                       _buildField('QUERY TYPE', lead['query_type'], Icons.category_outlined),
                       _buildField('CLIENT MESSAGE', lead['message'], Icons.message_outlined),
                       _buildField('SUBMISSION DATE', lead['created_at'], Icons.access_time_rounded),

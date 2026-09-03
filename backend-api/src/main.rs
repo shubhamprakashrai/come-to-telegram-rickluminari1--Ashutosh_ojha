@@ -1,3 +1,4 @@
+mod crypto;
 mod db;
 mod fcm;
 mod models;
@@ -107,7 +108,7 @@ async fn get_leads(
     .await;
 
     match rows {
-        Ok(leads) => Ok(Json(json!(leads))),
+        Ok(leads) => Ok(Json(crypto::encrypt_response(&json!(leads)))),
         Err(e) => {
             error!("Failed to fetch leads: {}", e);
             Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()))
@@ -156,11 +157,11 @@ async fn get_dashboard(
         .await
         .map_err(|e| { error!("Dashboard query failed: {}", e); (StatusCode::INTERNAL_SERVER_ERROR, "DB error".to_string()) })?;
 
-    Ok(Json(json!({
+    Ok(Json(crypto::encrypt_response(&json!({
         "total_leads": total.0,
         "today_leads": today.0,
         "week_leads": this_week.0
-    })))
+    }))))
 }
 
 async fn get_admins(
@@ -173,7 +174,7 @@ async fn get_admins(
     .await;
 
     match rows {
-        Ok(admins) => Ok(Json(json!(admins))),
+        Ok(admins) => Ok(Json(crypto::encrypt_response(&json!(admins)))),
         Err(e) => {
             error!("Failed to fetch admins: {}", e);
             Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()))
@@ -194,15 +195,15 @@ async fn verify_admin(
     .await;
 
     match row {
-        Ok(Some(admin)) => Ok(Json(json!({
+        Ok(Some(admin)) => Ok(Json(crypto::encrypt_response(&json!({
             "authorized": true,
             "role": admin.role,
             "email": admin.email
-        }))),
-        Ok(None) => Ok(Json(json!({
+        })))),
+        Ok(None) => Ok(Json(crypto::encrypt_response(&json!({
             "authorized": false,
             "message": "User not authorized"
-        }))),
+        })))),
         Err(e) => {
             error!("Error verifying admin: {}", e);
             Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()))
@@ -228,7 +229,7 @@ async fn add_admin(
     match result {
         Ok(_) => {
             info!("Successfully added/updated admin: {}", email);
-            Ok(Json(json!({ "status": "success", "message": "Admin added successfully" })))
+            Ok(Json(crypto::encrypt_response(&json!({ "status": "success", "message": "Admin added successfully" }))))
         }
         Err(e) => {
             error!("Failed to add admin: {}", e);
@@ -249,7 +250,7 @@ async fn delete_admin(
     match result {
         Ok(_) => {
             info!("Deleted admin: {}", id);
-            Ok(Json(json!({ "status": "success", "message": "Admin removed" })))
+            Ok(Json(crypto::encrypt_response(&json!({ "status": "success", "message": "Admin removed" }))))
         }
         Err(e) => {
             error!("Failed to delete admin: {}", e);

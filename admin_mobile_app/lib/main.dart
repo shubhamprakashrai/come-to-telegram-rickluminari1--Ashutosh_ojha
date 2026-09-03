@@ -3,12 +3,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/login_screen.dart';
 import 'firebase_options.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'services/api_crypto.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -66,25 +64,39 @@ class AdminApp extends StatelessWidget {
   }
 }
 
-class AuthGate extends StatelessWidget {
+/// Tri-state result of checking admin status against the backend.
+/// Kept distinct from a plain bool so a network/server failure never gets
+/// collapsed into "unauthorized" — that was the bug that signed real admins
+/// out (and bounced them back to the login screen) whenever the API blipped.
+enum _AdminCheck { authorized, unauthorized, checkFailed }
+
+class AuthGate extends StatefulWidget {
   const AuthGate({super.key});
 
-  Future<bool> _checkAdminStatus(String email) async {
+  @override
+  State<AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<AuthGate> {
+  Future<_AdminCheck>? _checkFuture;
+  String? _checkedEmail;
+
+  Future<_AdminCheck> _checkAdminStatus(String email) async {
     try {
-      final response = await http.post(
-        Uri.parse('https://ashutosh-api.toonshala.com/api/admins/verify'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'email': email}),
+      final data = await ApiClient.post(
+        'https://ashutosh-api.toonshala.com/api/admins/verify',
+        {'email': email},
       );
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return data['authorized'] == true;
-      }
-      return false;
+      return data['authorized'] == true ? _AdminCheck.authorized : _AdminCheck.unauthorized;
     } catch (e) {
       debugPrint('Error verifying admin: $e');
-      return false;
+      return _AdminCheck.checkFailed;
     }
+  }
+
+  void _startCheck(String email) {
+    _checkedEmail = email;
+    _checkFuture = _checkAdminStatus(email);
   }
 
   @override
@@ -99,8 +111,11 @@ class AuthGate extends StatelessWidget {
         }
         if (snapshot.hasData) {
           final email = snapshot.data?.email ?? '';
-          return FutureBuilder<bool>(
-            future: _checkAdminStatus(email),
+          if (_checkFuture == null || _checkedEmail != email) {
+            _startCheck(email);
+          }
+          return FutureBuilder<_AdminCheck>(
+            future: _checkFuture,
             builder: (context, authSnapshot) {
               if (authSnapshot.connectionState == ConnectionState.waiting) {
                 return const Scaffold(
@@ -108,11 +123,45 @@ class AuthGate extends StatelessWidget {
                 );
               }
 
-              if (authSnapshot.data == true) {
+              if (authSnapshot.data == _AdminCheck.authorized) {
                 return const DashboardScreen();
               }
 
-              // Not authorized — sign out and show access denied
+              if (authSnapshot.data == _AdminCheck.checkFailed) {
+                // Server unreachable — stay signed in and let the admin retry.
+                // Signing out here is exactly what caused the repeated
+                // "kicked back to login" loop whenever the API was down.
+                return Scaffold(
+                  backgroundColor: const Color(0xFF0F172A),
+                  body: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.wifi_off_rounded, size: 64, color: Color(0xFFD97706)),
+                          const SizedBox(height: 20),
+                          const Text('Can\'t Reach Server', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 8),
+                          Text(
+                            'You\'re still signed in as $email.\nCheck your connection and retry.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.white.withOpacity(0.5)),
+                          ),
+                          const SizedBox(height: 24),
+                          ElevatedButton(
+                            onPressed: () => setState(() => _startCheck(email)),
+                            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD97706)),
+                            child: const Text('Retry', style: TextStyle(color: Colors.white)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }
+
+              // Explicitly not authorized in the admin_users table — sign out.
               FirebaseAuth.instance.signOut();
               return Scaffold(
                 backgroundColor: const Color(0xFF0F172A),
@@ -144,6 +193,8 @@ class AuthGate extends StatelessWidget {
             },
           );
         }
+        _checkFuture = null;
+        _checkedEmail = null;
         return const LoginScreen();
       },
     );

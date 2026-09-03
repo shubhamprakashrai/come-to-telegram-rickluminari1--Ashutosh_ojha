@@ -14,7 +14,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   String? _errorMessage;
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
-  late Animation<Offset> _slideAnim;
+  late Animation<Offset> _slideAnim; 
 
   @override
   void initState() {
