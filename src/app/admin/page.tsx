@@ -3,10 +3,11 @@ import { useAuth } from '@/components/AuthProvider';
 import { fetchEncryptedJson, decryptEnvelope } from '@/lib/apiCrypto';
 import { 
   LogOut, PenTool, LayoutDashboard, Users, Plus, Trash2, Shield, ShieldCheck, 
-  FileText, X, CheckCircle2, AlertCircle, ExternalLink, Sparkles
+  FileText, X, CheckCircle2, AlertCircle, ExternalLink, Sparkles, FolderKanban,
+  Tag, Layers, ArrowRight, PlusCircle, Check
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import RichDocEditor from '@/components/RichDocEditor';
 
 type AdminUser = {
@@ -29,9 +30,22 @@ type BlogPost = {
   created_at: string;
 };
 
+const DEFAULT_CATEGORIES = [
+  'Legal Insights',
+  'Corporate Law',
+  'Civil Disputes',
+  'High Court Updates',
+  'Constitutional Law',
+  'Arbitration & ADR',
+  'Criminal Law & Defense',
+  'Intellectual Property (IPR)',
+  'Banking & Insolvency (IBC)',
+  'Tax & Regulatory Advisory'
+];
+
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'overview' | 'admins'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'categories' | 'admins'>('overview');
   
   // Admins state
   const [admins, setAdmins] = useState<AdminUser[]>([]);
@@ -45,6 +59,12 @@ export default function AdminDashboard() {
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [loadingBlogs, setLoadingBlogs] = useState(false);
   const [showPostModal, setShowPostModal] = useState(false);
+
+  // Categories state
+  const [customCategories, setCustomCategories] = useState<string[]>([]);
+  const [newCategoryInput, setNewCategoryInput] = useState('');
+  const [isAddingNewCat, setIsAddingNewCat] = useState(false);
+  const [customCatInput, setCustomCatInput] = useState('');
   
   // Editor form state
   const [postTitle, setPostTitle] = useState('');
@@ -54,6 +74,35 @@ export default function AdminDashboard() {
   const [postContentHtml, setPostContentHtml] = useState('');
   const [submittingPost, setSubmittingPost] = useState(false);
   const [postMsg, setPostMsg] = useState<{ text: string; error?: boolean } | null>(null);
+
+  // Load saved custom categories from localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('ashutosh_custom_categories');
+      if (saved) {
+        try {
+          setCustomCategories(JSON.parse(saved));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+  }, []);
+
+  const saveCustomCategory = (categoryName: string) => {
+    const trimmed = categoryName.trim();
+    if (!trimmed) return;
+    const updated = Array.from(new Set([...customCategories, trimmed]));
+    setCustomCategories(updated);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ashutosh_custom_categories', JSON.stringify(updated));
+    }
+  };
+
+  const allAvailableCategories = useMemo(() => {
+    const blogCategories = blogs.map(b => b.category).filter(Boolean);
+    return Array.from(new Set([...DEFAULT_CATEGORIES, ...customCategories, ...blogCategories]));
+  }, [blogs, customCategories]);
 
   const fetchAdmins = useCallback(async () => {
     setLoadingAdmins(true);
@@ -130,12 +179,31 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleAddCategoryFromTab = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCategoryInput.trim()) return;
+    saveCustomCategory(newCategoryInput.trim());
+    setNewCategoryInput('');
+  };
+
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Determine category
+    const finalCategory = (isAddingNewCat && customCatInput.trim()) ? customCatInput.trim() : postCategory;
+    if (!finalCategory) {
+      alert('Please select or specify a practice category');
+      return;
+    }
     if (!postTitle.trim() || !postContentHtml.trim()) {
       alert('Please fill article title and write some content');
       return;
     }
+
+    if (isAddingNewCat && customCatInput.trim()) {
+      saveCustomCategory(customCatInput.trim());
+    }
+
     setSubmittingPost(true);
     setPostMsg(null);
 
@@ -145,7 +213,7 @@ export default function AdminDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: postTitle.trim(),
-          category: postCategory,
+          category: finalCategory,
           excerpt: postExcerpt.trim() || postTitle.trim(),
           content: postContentHtml.trim(),
           image_url: postImageUrl.trim() || undefined,
@@ -160,6 +228,8 @@ export default function AdminDashboard() {
         setPostExcerpt('');
         setPostImageUrl('');
         setPostContentHtml('');
+        setIsAddingNewCat(false);
+        setCustomCatInput('');
         setTimeout(() => {
           setShowPostModal(false);
           setPostMsg(null);
@@ -212,7 +282,19 @@ export default function AdminDashboard() {
             }`}
           >
             <PenTool className="w-5 h-5 mr-3" />
-            Overview & Posts
+            Overview &amp; Posts
+          </button>
+
+          <button 
+            onClick={() => setActiveTab('categories')}
+            className={`w-full flex items-center px-4 py-3 rounded-xl font-medium transition-colors ${
+              activeTab === 'categories' 
+                ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' 
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <FolderKanban className="w-5 h-5 mr-3" />
+            Practice Categories
           </button>
 
           <button 
@@ -284,16 +366,22 @@ export default function AdminDashboard() {
                 <h3 className="text-gray-400 text-sm font-medium mb-2">Total Published Articles</h3>
                 <p className="text-3xl font-bold text-white">{blogs.length}</p>
               </div>
+              <div 
+                onClick={() => setActiveTab('categories')}
+                className="bg-slate-900 border border-white/5 p-6 rounded-2xl cursor-pointer hover:border-amber-500/30 transition-all group"
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-gray-400 text-sm font-medium">Practice Categories</h3>
+                  <span className="text-xs text-amber-400 group-hover:underline flex items-center">
+                    Manage <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
+                  </span>
+                </div>
+                <p className="text-3xl font-bold text-amber-400">{allAvailableCategories.length}</p>
+              </div>
               <div className="bg-slate-900 border border-white/5 p-6 rounded-2xl">
                 <h3 className="text-gray-400 text-sm font-medium mb-2">Cloudflare R2 Storage</h3>
                 <p className="text-lg font-bold text-emerald-400 mt-1 flex items-center">
                   <Sparkles className="w-5 h-5 mr-1" /> Active &amp; Connected
-                </p>
-              </div>
-              <div className="bg-slate-900 border border-white/5 p-6 rounded-2xl">
-                <h3 className="text-gray-400 text-sm font-medium mb-2">Database Status</h3>
-                <p className="text-lg font-bold text-emerald-400 mt-1 flex items-center">
-                  <ShieldCheck className="w-5 h-5 mr-1" /> PostgreSQL VPS Live
                 </p>
               </div>
             </div>
@@ -350,18 +438,32 @@ export default function AdminDashboard() {
                             <span className="text-xs text-gray-500">•</span>
                             <span className="text-xs text-gray-500">{blog.author}</span>
                           </div>
-                          <h3 className="text-base font-bold text-white">{blog.title}</h3>
+                          <a 
+                            href={`/blogs/${blog.slug}`} 
+                            target="_blank" 
+                            className="text-base font-bold text-white hover:text-amber-400 transition-colors inline-block"
+                          >
+                            {blog.title}
+                          </a>
                           <p className="text-sm text-gray-400 line-clamp-2">{blog.excerpt}</p>
                         </div>
                       </div>
 
                       <div className="flex items-center space-x-3 shrink-0 ml-6">
+                        <a
+                          href={`/blogs/${blog.slug}`}
+                          target="_blank"
+                          className="text-gray-400 hover:text-amber-400 p-2 rounded-lg hover:bg-white/5 transition-colors"
+                          title="View live article"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
                         <button 
                           onClick={() => handleDeleteBlog(blog.id, blog.title)}
                           className="text-gray-500 hover:text-red-400 p-2 rounded-lg hover:bg-red-500/10 transition-colors"
                           title="Delete article"
                         >
-                          <Trash2 className="w-5 h-5" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
@@ -370,7 +472,88 @@ export default function AdminDashboard() {
               )}
             </div>
           </motion.div>
+        ) : activeTab === 'categories' ? (
+          /* Practice Categories Management Tab */
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-4xl mx-auto space-y-8"
+          >
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-2">Practice Categories</h1>
+              <p className="text-gray-400 text-sm">
+                Manage practice domains, legal verticals, and topic categories across your portal. New categories added here will appear in the article editor and public filter pills automatically.
+              </p>
+            </div>
+
+            {/* Add Category Form */}
+            <div className="bg-slate-900 border border-white/5 rounded-2xl p-6">
+              <h2 className="text-lg font-semibold text-white mb-4 flex items-center">
+                <PlusCircle className="w-5 h-5 text-amber-500 mr-2" />
+                Create New Practice Domain
+              </h2>
+              <form onSubmit={handleAddCategoryFromTab} className="flex gap-4">
+                <input 
+                  type="text" 
+                  required
+                  placeholder="e.g. Cyber Law &amp; Data Privacy, Real Estate &amp; RERA..." 
+                  value={newCategoryInput}
+                  onChange={(e) => setNewCategoryInput(e.target.value)}
+                  className="flex-1 bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-500"
+                />
+                <button 
+                  type="submit"
+                  className="bg-amber-600 hover:bg-amber-500 text-white font-medium px-6 py-3 rounded-xl text-sm transition-all shadow-md flex items-center"
+                >
+                  <Plus className="w-4 h-4 mr-1.5" />
+                  Add Category
+                </button>
+              </form>
+            </div>
+
+            {/* Categories List Grid */}
+            <div className="bg-slate-900 border border-white/5 rounded-2xl p-6 space-y-6">
+              <div className="flex justify-between items-center border-b border-white/5 pb-4">
+                <h2 className="text-lg font-semibold text-white">Active Categories ({allAvailableCategories.length})</h2>
+                <span className="text-xs text-gray-500 font-mono">Live synced</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {allAvailableCategories.map((cat) => {
+                  const articleCount = blogs.filter(b => b.category.toLowerCase() === cat.toLowerCase()).length;
+                  return (
+                    <div 
+                      key={cat} 
+                      className="p-4 rounded-2xl bg-slate-950 border border-white/5 flex items-center justify-between hover:border-amber-500/30 transition-all"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 text-amber-400">
+                          <Tag className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-white">{cat}</p>
+                          <p className="text-xs text-gray-500">{articleCount} published {articleCount === 1 ? 'article' : 'articles'}</p>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          setPostCategory(cat);
+                          setShowPostModal(true);
+                        }}
+                        className="px-3 py-1.5 bg-white/5 hover:bg-amber-500/15 text-gray-300 hover:text-amber-400 rounded-lg text-xs font-semibold border border-white/5 transition-all flex items-center"
+                      >
+                        <Plus className="w-3 h-3 mr-1" />
+                        Write
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </motion.div>
         ) : (
+          /* Admins Management Tab */
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -527,19 +710,42 @@ export default function AdminDashboard() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-gray-400 mb-2">PRACTICE CATEGORY *</label>
-                    <select 
-                      value={postCategory}
-                      onChange={(e) => setPostCategory(e.target.value)}
-                      className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-500"
-                    >
-                      <option value="Legal Insights">Legal Insights</option>
-                      <option value="Corporate Law">Corporate Law</option>
-                      <option value="Civil Disputes">Civil Disputes</option>
-                      <option value="High Court Updates">High Court Updates</option>
-                      <option value="Constitutional Law">Constitutional Law</option>
-                      <option value="Arbitration & ADR">Arbitration & ADR</option>
-                    </select>
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="block text-xs font-semibold text-gray-400">PRACTICE CATEGORY *</label>
+                      <button
+                        type="button"
+                        onClick={() => setIsAddingNewCat(!isAddingNewCat)}
+                        className="text-[11px] text-amber-400 hover:underline flex items-center font-medium"
+                      >
+                        {isAddingNewCat ? 'Choose Existing' : '+ Type Custom Category'}
+                      </button>
+                    </div>
+
+                    {isAddingNewCat ? (
+                      <div className="relative">
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. Cyber Law, Taxation, Real Estate..."
+                          value={customCatInput}
+                          onChange={(e) => setCustomCatInput(e.target.value)}
+                          className="w-full bg-slate-950 border border-amber-500/50 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-400"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-amber-400 font-mono bg-amber-500/10 px-2 py-0.5 rounded">
+                          New
+                        </span>
+                      </div>
+                    ) : (
+                      <select 
+                        value={postCategory}
+                        onChange={(e) => setPostCategory(e.target.value)}
+                        className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-500"
+                      >
+                        {allAvailableCategories.map((cat) => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                      </select>
+                    )}
                   </div>
                 </div>
 

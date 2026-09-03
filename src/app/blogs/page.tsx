@@ -64,8 +64,7 @@ const FALLBACK_BLOGS: BlogPost[] = [
   },
 ];
 
-const CATEGORIES = [
-  'All',
+const DEFAULT_CATEGORIES = [
   'Corporate Law',
   'Arbitration & ADR',
   'Constitutional Law',
@@ -83,6 +82,12 @@ export default function BlogsPage() {
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const dynamicCategories = useMemo(() => {
+    const fromBlogs = blogs.map((b) => b.category).filter(Boolean);
+    const unique = Array.from(new Set([...DEFAULT_CATEGORIES, ...fromBlogs]));
+    return ['All', ...unique];
+  }, [blogs]);
 
   useEffect(() => {
     async function loadBlogs() {
@@ -258,7 +263,7 @@ export default function BlogsPage() {
       {/* Category Pills */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
         <div className="flex items-center space-x-2 overflow-x-auto pb-3 scrollbar-none">
-          {CATEGORIES.map((cat) => (
+          {dynamicCategories.map((cat) => (
             <button
               key={cat}
               onClick={() => handleCategoryChange(cat)}
