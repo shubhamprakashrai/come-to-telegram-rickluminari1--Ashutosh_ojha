@@ -14,7 +14,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   api:
-    build: .
+    image: ashutosh-law-api-backend:latest
     restart: always
     ports:
       - "8080:8080"
