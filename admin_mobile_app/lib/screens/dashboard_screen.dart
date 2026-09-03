@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'leads_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -13,6 +15,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   String? _fcmToken;
+  static const String _apiBase = 'https://ashutosh-api.toonshala.com';
 
   @override
   void initState() {
@@ -28,7 +31,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final token = await FirebaseMessaging.instance.getToken();
       setState(() => _fcmToken = token);
       debugPrint('FCM Token: $token');
-      // TODO: Send token to Rust backend to register this device
+      // Register token with backend
+      if (token != null) {
+        try {
+          await http.post(
+            Uri.parse('$_apiBase/api/register-token'),
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode({'token': token}),
+          );
+          debugPrint('FCM token registered with backend');
+        } catch (e) {
+          debugPrint('Failed to register FCM token: $e');
+        }
+      }
     }
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {

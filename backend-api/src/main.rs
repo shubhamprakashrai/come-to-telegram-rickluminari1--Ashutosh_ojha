@@ -14,7 +14,7 @@ use tower_http::cors::{Any, CorsLayer};
 use std::net::SocketAddr;
 use tracing::{info, error};
 use sqlx::PgPool;
-use models::{ContactFormRequest, Lead};
+use models::{ContactFormRequest, Lead, RegisterTokenRequest};
 
 #[derive(Clone)]
 struct AppState {
@@ -39,6 +39,7 @@ async fn main() {
         .route("/api/health", get(health_check))
         .route("/api/contact", post(submit_contact_form))
         .route("/api/leads", get(get_leads))
+        .route("/api/register-token", post(register_token))
         .layer(cors)
         .with_state(state);
 
@@ -80,7 +81,7 @@ async fn submit_contact_form(
         Ok(_) => {
             info!("Successfully inserted lead: {}", lead_id);
             // Trigger FCM Push Notification
-            fcm::send_push_notification(&payload.name, &payload.query_type, &payload.message).await;
+            fcm::send_push_notification(&payload.name, &payload.query_type, &payload.message, &state.db).await;
             
             Ok(Json(json!({ "status": "success", "message": "Contact form submitted", "lead_id": lead_id })))
         }
@@ -104,6 +105,29 @@ async fn get_leads(
         Ok(leads) => Ok(Json(json!(leads))),
         Err(e) => {
             error!("Failed to fetch leads: {}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()))
+        }
+    }
+}
+
+async fn register_token(
+    State(state): State<AppState>,
+    Json(payload): Json<RegisterTokenRequest>,
+) -> Result<Json<Value>, (StatusCode, String)> {
+    let result = sqlx::query(
+        "INSERT INTO device_tokens (token) VALUES ($1) ON CONFLICT (token) DO NOTHING"
+    )
+    .bind(&payload.token)
+    .execute(&state.db)
+    .await;
+
+    match result {
+        Ok(_) => {
+            info!("Registered FCM token: {}...", &payload.token[..20.min(payload.token.len())]);
+            Ok(Json(json!({ "status": "success" })))
+        }
+        Err(e) => {
+            error!("Failed to register token: {}", e);
             Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()))
         }
     }

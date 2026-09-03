@@ -21,3 +21,8 @@ pub struct Lead {
     pub message: String,
     pub created_at: DateTime<Utc>,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RegisterTokenRequest {
+    pub token: String,
+}

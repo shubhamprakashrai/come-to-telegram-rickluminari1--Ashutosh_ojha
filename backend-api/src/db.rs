@@ -28,5 +28,18 @@ pub async fn init_db() -> Result<PgPool, sqlx::Error> {
     .execute(&pool)
     .await?;
 
+    // Create device_tokens table for FCM push notifications
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS device_tokens (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            token TEXT UNIQUE NOT NULL,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+        "#,
+    )
+    .execute(&pool)
+    .await?;
+
     Ok(pool)
 }
