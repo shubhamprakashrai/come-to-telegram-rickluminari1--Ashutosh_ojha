@@ -85,49 +85,54 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
         showModalBottomSheet(
           context: context,
           backgroundColor: Colors.transparent,
-          builder: (ctx) => Container(
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF1A2035), Color(0xFF0F172A)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+          isScrollControlled: true,
+          builder: (ctx) => SafeArea(
+            top: false,
+            bottom: true,
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + MediaQuery.of(ctx).padding.bottom),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF1A2035), Color(0xFF0F172A)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(color: const Color(0xFFD97706).withOpacity(0.3)),
+                boxShadow: [
+                  BoxShadow(color: const Color(0xFFD97706).withOpacity(0.1), blurRadius: 30),
+                ],
               ),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFFD97706).withOpacity(0.3)),
-              boxShadow: [
-                BoxShadow(color: const Color(0xFFD97706).withOpacity(0.1), blurRadius: 30),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 56, height: 56,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [const Color(0xFFD97706).withOpacity(0.2), const Color(0xFFF59E0B).withOpacity(0.05)]),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: const Icon(Icons.notifications_active_rounded, color: Color(0xFFD97706), size: 28),
-                ),
-                const SizedBox(height: 16),
-                Text(notification.title ?? 'New Lead!', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
-                const SizedBox(height: 8),
-                Text(notification.body ?? '', style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 14), textAlign: TextAlign.center),
-                const SizedBox(height: 20),
-                GestureDetector(
-                  onTap: () { Navigator.pop(ctx); Navigator.push(context, MaterialPageRoute(builder: (_) => const LeadsScreen())); },
-                  child: Container(
-                    width: double.infinity, height: 48,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 56, height: 56,
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(colors: [Color(0xFFD97706), Color(0xFFF59E0B)]),
-                      borderRadius: BorderRadius.circular(14),
+                      gradient: LinearGradient(colors: [const Color(0xFFD97706).withOpacity(0.2), const Color(0xFFF59E0B).withOpacity(0.05)]),
+                      borderRadius: BorderRadius.circular(18),
                     ),
-                    child: const Center(child: Text('View Lead', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15))),
+                    child: const Icon(Icons.notifications_active_rounded, color: Color(0xFFD97706), size: 28),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  Text(notification.title ?? 'New Lead!', style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                  const SizedBox(height: 8),
+                  Text(notification.body ?? '', style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 14), textAlign: TextAlign.center),
+                  const SizedBox(height: 20),
+                  GestureDetector(
+                    onTap: () { Navigator.pop(ctx); Navigator.push(context, MaterialPageRoute(builder: (_) => const LeadsScreen())); },
+                    child: Container(
+                      width: double.infinity, height: 48,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(colors: [Color(0xFFD97706), Color(0xFFF59E0B)]),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Center(child: Text('View Lead', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15))),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -162,7 +167,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
                 child: FadeTransition(
                   opacity: _animController,
                   child: Column(

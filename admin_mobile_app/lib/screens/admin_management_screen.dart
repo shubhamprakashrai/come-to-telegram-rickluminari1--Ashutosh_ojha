@@ -47,19 +47,22 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
       builder: (ctx) => StatefulBuilder(
         builder: (context, setSheetState) => Padding(
           padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: Container(
-            decoration: const BoxDecoration(
-              color: Color(0xFF0F172A),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-              boxShadow: [
-                BoxShadow(color: Colors.black54, blurRadius: 30, spreadRadius: 5),
-              ],
-            ),
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 28),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+          child: SafeArea(
+            top: false,
+            bottom: true,
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Color(0xFF0F172A),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                boxShadow: [
+                  BoxShadow(color: Colors.black54, blurRadius: 30, spreadRadius: 5),
+                ],
+              ),
+              padding: EdgeInsets.fromLTRB(24, 16, 24, 24 + MediaQuery.of(context).padding.bottom),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 Center(
                   child: Container(
                     width: 44,
@@ -241,8 +244,9 @@ class _AdminManagementScreenState extends State<AdminManagementScreen> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Future<void> _deleteAdmin(String id, String email) async {
     final confirm = await showDialog<bool>(

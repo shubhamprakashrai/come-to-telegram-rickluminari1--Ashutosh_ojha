@@ -51,17 +51,20 @@ class _BlogManagerScreenState extends State<BlogManagerScreen> {
       builder: (ctx) => StatefulBuilder(
         builder: (context, setSheetState) => Padding(
           padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: Container(
-            height: MediaQuery.of(context).size.height * 0.85,
-            decoration: const BoxDecoration(
-              color: Color(0xFF0F172A),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-              boxShadow: [BoxShadow(color: Colors.black54, blurRadius: 30, spreadRadius: 5)],
-            ),
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+          child: SafeArea(
+            top: false,
+            bottom: true,
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.85,
+              decoration: const BoxDecoration(
+                color: Color(0xFF0F172A),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                boxShadow: [BoxShadow(color: Colors.black54, blurRadius: 30, spreadRadius: 5)],
+              ),
+              padding: EdgeInsets.fromLTRB(24, 16, 24, 24 + MediaQuery.of(context).padding.bottom),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 Center(
                   child: Container(
                     width: 44,
@@ -243,8 +246,9 @@ class _BlogManagerScreenState extends State<BlogManagerScreen> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Future<void> _deleteBlog(String id, String title) async {
     final confirm = await showDialog<bool>(

@@ -146,18 +146,21 @@ class _LeadsScreenState extends State<LeadsScreen> with SingleTickerProviderStat
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        decoration: const BoxDecoration(
-          color: Color(0xFF0F172A),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-          boxShadow: [BoxShadow(color: Colors.black54, blurRadius: 30, spreadRadius: 5)],
-        ),
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
+      builder: (ctx) => SafeArea(
+        top: false,
+        bottom: true,
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Color(0xFF0F172A),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            boxShadow: [BoxShadow(color: Colors.black54, blurRadius: 30, spreadRadius: 5)],
+          ),
+          padding: EdgeInsets.fromLTRB(24, 16, 24, 24 + MediaQuery.of(ctx).padding.bottom),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
               Center(
                 child: Container(
                   width: 44,
@@ -286,8 +289,9 @@ class _LeadsScreenState extends State<LeadsScreen> with SingleTickerProviderStat
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -595,49 +599,53 @@ class _LeadsScreenState extends State<LeadsScreen> with SingleTickerProviderStat
 
             // Pagination Controls Footer
             if (_filteredLeads.isNotEmpty)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0F172A),
-                  border: Border(top: BorderSide(color: Colors.white.withOpacity(0.06))),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Showing ${((_currentPage - 1) * _pageSize + 1)}-${((_currentPage * _pageSize)).clamp(0, _filteredLeads.length)} of ${_filteredLeads.length}',
-                      style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 12),
-                    ),
-                    Row(
-                      children: [
-                        IconButton(
-                          onPressed: _currentPage > 1 ? () => setState(() => _currentPage--) : null,
-                          icon: const Icon(Icons.chevron_left_rounded),
-                          color: Colors.white,
-                          disabledColor: Colors.white12,
-                          iconSize: 22,
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFD97706).withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8),
+              SafeArea(
+                top: false,
+                bottom: true,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F172A),
+                    border: Border(top: BorderSide(color: Colors.white.withOpacity(0.06))),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Showing ${((_currentPage - 1) * _pageSize + 1)}-${((_currentPage * _pageSize)).clamp(0, _filteredLeads.length)} of ${_filteredLeads.length}',
+                        style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 12),
+                      ),
+                      Row(
+                        children: [
+                          IconButton(
+                            onPressed: _currentPage > 1 ? () => setState(() => _currentPage--) : null,
+                            icon: const Icon(Icons.chevron_left_rounded),
+                            color: Colors.white,
+                            disabledColor: Colors.white12,
+                            iconSize: 22,
                           ),
-                          child: Text(
-                            '$_currentPage / $_totalPages',
-                            style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 12, fontWeight: FontWeight.bold),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFD97706).withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              '$_currentPage / $_totalPages',
+                              style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
                           ),
-                        ),
-                        IconButton(
-                          onPressed: _currentPage < _totalPages ? () => setState(() => _currentPage++) : null,
-                          icon: const Icon(Icons.chevron_right_rounded),
-                          color: Colors.white,
-                          disabledColor: Colors.white12,
-                          iconSize: 22,
-                        ),
-                      ],
-                    ),
-                  ],
+                          IconButton(
+                            onPressed: _currentPage < _totalPages ? () => setState(() => _currentPage++) : null,
+                            icon: const Icon(Icons.chevron_right_rounded),
+                            color: Colors.white,
+                            disabledColor: Colors.white12,
+                            iconSize: 22,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
           ],
