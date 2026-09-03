@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from 'react';
 import { Menu, X, Scale, Users, FileText, Shield, Phone, Mail, MapPin, Clock, CheckCircle, Award, ArrowRight, Calendar, MessageCircle, ChevronRight, Building, Gavel, UserCheck } from 'lucide-react';
 import 'slick-carousel/slick/slick.css';
