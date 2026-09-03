@@ -1,4 +1,6 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { app } from './firebase/client';
 
 const r2Client = new S3Client({
   region: 'auto',
@@ -17,16 +19,30 @@ export async function uploadImageToR2(file: File): Promise<string> {
   const cleanName = file.name.replace(/[^a-zA-Z0-9]/g, '-').slice(0, 20);
   const key = `blogs/${Date.now()}-${cleanName}.${extension}`;
 
-  const arrayBuffer = await file.arrayBuffer();
-  const uint8Array = new Uint8Array(arrayBuffer);
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const uint8Array = new Uint8Array(arrayBuffer);
 
-  const command = new PutObjectCommand({
-    Bucket: BUCKET_NAME,
-    Key: key,
-    Body: uint8Array,
-    ContentType: file.type || 'image/jpeg',
-  });
+    const command = new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+      Body: uint8Array,
+      ContentType: file.type || 'image/jpeg',
+    });
 
-  await r2Client.send(command);
-  return `${R2_PUBLIC_DOMAIN}/${key}`;
+    await r2Client.send(command);
+    return `${R2_PUBLIC_DOMAIN}/${key}`;
+  } catch (r2Error) {
+    console.warn('R2 upload warning, attempting Firebase Storage fallback...', r2Error);
+    try {
+      const storage = getStorage(app);
+      const storageRef = ref(storage, `blogs/${Date.now()}-${cleanName}.${extension}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadUrl = await getDownloadURL(snapshot.ref);
+      return downloadUrl;
+    } catch (firebaseError) {
+      console.error('Both R2 and Firebase Storage upload failed:', firebaseError);
+      throw new Error('Image upload failed');
+    }
+  }
 }
