@@ -1,8 +1,53 @@
 'use client';
 import { motion } from 'framer-motion';
-import { Phone, Mail, MapPin, Clock, Calendar, Send } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, Calendar, Send, CheckCircle2, Loader2 } from 'lucide-react';
+import { useState } from 'react';
 
 export default function ContactForm() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    query_type: '',
+    message: ''
+  });
+  
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('loading');
+
+    try {
+      const response = await fetch('http://222.167.207.35:8080/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setStatus('success');
+        setFormData({ name: '', email: '', phone: '', query_type: '', message: '' });
+        // Reset success message after 5 seconds
+        setTimeout(() => setStatus('idle'), 5000);
+      } else {
+        setStatus('error');
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      setStatus('error');
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.id]: e.target.value
+    }));
+  };
+
   return (
     <section id="contact" className="py-24 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -89,12 +134,15 @@ export default function ContactForm() {
               
               <h3 className="text-3xl font-bold mb-8 text-white">Do you have any legal query?</h3>
               
-              <form className="space-y-6 relative z-10" onSubmit={(e) => e.preventDefault()}>
+              <form className="space-y-6 relative z-10" onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="relative group">
                     <input
                       type="text"
                       id="name"
+                      required
+                      value={formData.name}
+                      onChange={handleChange}
                       placeholder=" "
                       className="block w-full px-4 pt-6 pb-2 text-white bg-white/5 border border-white/10 rounded-xl appearance-none focus:outline-none focus:ring-0 focus:border-amber-500 peer transition-colors"
                     />
@@ -105,6 +153,9 @@ export default function ContactForm() {
                     <input
                       type="email"
                       id="email"
+                      required
+                      value={formData.email}
+                      onChange={handleChange}
                       placeholder=" "
                       className="block w-full px-4 pt-6 pb-2 text-white bg-white/5 border border-white/10 rounded-xl appearance-none focus:outline-none focus:ring-0 focus:border-amber-500 peer transition-colors"
                     />
@@ -117,6 +168,9 @@ export default function ContactForm() {
                     <input
                       type="tel"
                       id="phone"
+                      required
+                      value={formData.phone}
+                      onChange={handleChange}
                       placeholder=" "
                       className="block w-full px-4 pt-6 pb-2 text-white bg-white/5 border border-white/10 rounded-xl appearance-none focus:outline-none focus:ring-0 focus:border-amber-500 peer transition-colors"
                     />
@@ -124,7 +178,13 @@ export default function ContactForm() {
                   </div>
                   
                   <div className="relative group">
-                    <select className="block w-full px-4 pt-6 pb-2 text-white bg-white/5 border border-white/10 rounded-xl appearance-none focus:outline-none focus:ring-0 focus:border-amber-500 transition-colors">
+                    <select 
+                      id="query_type"
+                      required
+                      value={formData.query_type}
+                      onChange={handleChange}
+                      className="block w-full px-4 pt-6 pb-2 text-white bg-white/5 border border-white/10 rounded-xl appearance-none focus:outline-none focus:ring-0 focus:border-amber-500 transition-colors"
+                    >
                       <option value="" className="bg-slate-900 text-gray-400">Select Query Type</option>
                       <option value="civil" className="bg-slate-900">Get Support</option>
                       <option value="corporate" className="bg-slate-900">Guidance</option>
@@ -137,6 +197,9 @@ export default function ContactForm() {
                 <div className="relative group">
                   <textarea
                     id="message"
+                    required
+                    value={formData.message}
+                    onChange={handleChange}
                     rows={4}
                     placeholder=" "
                     className="block w-full px-4 pt-6 pb-2 text-white bg-white/5 border border-white/10 rounded-xl appearance-none focus:outline-none focus:ring-0 focus:border-amber-500 peer transition-colors resize-none"
@@ -144,14 +207,37 @@ export default function ContactForm() {
                   <label htmlFor="message" className="absolute text-sm text-gray-400 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 peer-focus:text-amber-500">Describe your legal query in detail</label>
                 </div>
 
+                {status === 'error' && (
+                  <p className="text-red-400 text-sm">Failed to send message. Please try again later.</p>
+                )}
+                
+                {status === 'success' && (
+                  <p className="text-emerald-400 text-sm flex items-center">
+                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                    Your message has been sent successfully. We will get back to you soon!
+                  </p>
+                )}
+
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
-                  className="w-full bg-gradient-to-r from-amber-600 to-amber-500 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-amber-500/20 flex items-center justify-center group"
+                  disabled={status === 'loading' || status === 'success'}
+                  className="w-full bg-gradient-to-r from-amber-600 to-amber-500 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-amber-500/20 flex items-center justify-center group disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  <Send className="w-5 h-5 mr-2 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                  Send Message
+                  {status === 'loading' ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : status === 'success' ? (
+                    <>
+                      <CheckCircle2 className="w-5 h-5 mr-2" />
+                      Sent Successfully
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5 mr-2 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                      Send Message
+                    </>
+                  )}
                 </motion.button>
 
                 <p className="text-xs text-gray-500 text-center mt-4 flex items-center justify-center">
