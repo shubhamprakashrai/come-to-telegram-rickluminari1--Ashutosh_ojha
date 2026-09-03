@@ -58,13 +58,15 @@ mobile-icons:
 	cd admin_mobile_app && flutter pub get && dart run flutter_launcher_icons
 
 mobile-build-apk: mobile-icons
-	@echo "📦 Building Production Release APK with Obfuscation..."
+	@echo "📦 Building Production Release APKs (Split per ABI with Obfuscation)..."
 	mkdir -p admin_mobile_app/build/app/outputs/symbols
 	cd admin_mobile_app && flutter build apk --release \
+		--split-per-abi \
 		--obfuscate \
 		--split-debug-info=build/app/outputs/symbols \
 		--tree-shake-icons
-	@echo "✅ APK generated: admin_mobile_app/build/app/outputs/flutter-apk/app-release.apk"
+	@echo "✅ Optimized APKs generated in admin_mobile_app/build/app/outputs/flutter-apk/"
+
 
 mobile-build-bundle: mobile-icons
 	@echo "📦 Building Production Release AppBundle with Obfuscation..."
