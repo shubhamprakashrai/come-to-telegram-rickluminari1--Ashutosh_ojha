@@ -17,60 +17,27 @@ type BlogPost = {
   created_at: string;
 };
 
-const FALLBACK_BLOGS: BlogPost[] = [
-  {
-    id: '1',
-    title: 'Navigating Commercial Arbitration & Dispute Resolution in India',
-    slug: 'navigating-commercial-arbitration',
-    category: 'Arbitration & ADR',
-    excerpt: 'Key strategies, statutory timelines, and recent High Court precedents governing modern corporate arbitration.',
-    image_url: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=1200',
-    content: `Commercial arbitration in India has undergone significant evolution following recent legislative amendments and progressive judicial interpretations. This analysis highlights key procedural milestones, enforcement mechanisms under the Arbitration and Conciliation Act, and crucial considerations for corporate contracts.\n\n## Key Considerations\n- Precise drafting of arbitration clauses\n- Selecting appropriate arbitral seats and governing laws\n- Interim relief measures under Section 9 and Section 17\n\n> Parties entering commercial agreements must ensure unambiguous dispute escalation protocols to mitigate protracted litigation delays.`,
-    author: 'Adv. Ashutosh Ojha',
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    title: 'Corporate Governance & Director Liability: Practical Safeguards',
-    slug: 'corporate-governance-director-liability',
-    category: 'Corporate Law',
-    excerpt: 'An overview of fiduciary responsibilities, statutory compliance, and protecting corporate leadership from undue exposure.',
-    image_url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1200',
-    content: `With increasing regulatory scrutiny from authorities, understanding the nuances of board responsibilities is paramount for business leaders.\n\n## Core Fiduciary Duties\n- Duty of care and diligence\n- Avoidance of conflict of interest\n- Statutory filings under the Companies Act\n\n> Adopting proactive governance frameworks shields leadership while promoting sustainable enterprise growth.`,
-    author: 'Adv. Ashutosh Ojha',
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: '3',
-    title: 'High Court Writ Jurisdictions: Fundamental Rights & Relief',
-    slug: 'high-court-writ-jurisdictions',
-    category: 'Constitutional Law',
-    excerpt: 'A practitioner guide on invoking Article 226 for speedy and effective judicial review against administrative overreach.',
-    image_url: 'https://images.unsplash.com/photo-1453728013993-6d66e9c9123a?auto=format&fit=crop&q=80&w=1200',
-    content: `Article 226 of the Constitution of India provides High Courts with broad powers to issue prerogative writs for the enforcement of fundamental and statutory rights.\n\n## Common Prerogative Writs\n- **Mandamus**: Compelling statutory authorities to discharge duties\n- **Certiorari**: Quashing orders passed without lawful jurisdiction\n- **Prohibition**: Preventing inferior tribunals from exceeding powers\n\nEffective presentation of writ petitions requires sharp legal grounds and timely filing.`,
-    author: 'Adv. Ashutosh Ojha',
-    created_at: new Date().toISOString(),
-  },
-];
-
 export default function BlogSection() {
-  const [blogs, setBlogs] = useState<BlogPost[]>(FALLBACK_BLOGS);
+  const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [copied, setCopied] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadBlogs() {
       try {
         const data = await fetchEncryptedJson<BlogPost[]>('https://ashutosh-api.toonshala.com/api/blogs');
-        if (data && data.length > 0) {
-          setBlogs(data);
-        }
+        setBlogs(data || []);
       } catch (err) {
-        console.log('Using curated legal articles fallback', err);
+        console.error('Failed to load live blogs', err);
+        setBlogs([]);
+      } finally {
+        setLoading(false);
       }
     }
     loadBlogs();
   }, []);
+
 
   const handleShare = () => {
     if (typeof window !== 'undefined') {
@@ -179,19 +146,33 @@ export default function BlogSection() {
         </div>
 
         {/* Blog Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {blogs.slice(0, 3).map((blog, index) => (
-            <motion.div
-              key={blog.id || index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-            >
-              <Link
-                href={`/blogs/${blog.slug}`}
-                className="bg-slate-900/80 backdrop-blur-md border border-white/10 rounded-3xl overflow-hidden hover:border-amber-500/40 hover:bg-slate-900 transition-all duration-300 flex flex-col justify-between group cursor-pointer shadow-xl relative h-full"
+        {loading ? (
+          <div className="p-16 text-center text-gray-500 text-sm">
+            Loading legal publications...
+          </div>
+        ) : blogs.length === 0 ? (
+          <div className="p-12 text-center bg-slate-900/40 border border-white/5 rounded-3xl max-w-xl mx-auto">
+            <BookOpen className="w-10 h-10 text-amber-500/40 mx-auto mb-3" />
+            <h3 className="text-lg font-bold text-white mb-1">Knowledge Hub Coming Soon</h3>
+            <p className="text-gray-400 text-sm">
+              New authoritative legal analyses and High Court commentaries will be published here soon.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {blogs.slice(0, 3).map((blog, index) => (
+              <motion.div
+                key={blog.id || index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
               >
+                <Link
+                  href={`/blogs/${blog.slug}`}
+                  className="bg-slate-900/80 backdrop-blur-md border border-white/10 rounded-3xl overflow-hidden hover:border-amber-500/40 hover:bg-slate-900 transition-all duration-300 flex flex-col justify-between group cursor-pointer shadow-xl relative h-full"
+                >
+
                 <div>
                   {/* Card Cover Image */}
                   {blog.image_url ? (
@@ -253,7 +234,10 @@ export default function BlogSection() {
             </motion.div>
           ))}
         </div>
-      </div>
+      )}
+    </div>
+
+
 
       {/* Quick Article Reader Modal */}
       <AnimatePresence>

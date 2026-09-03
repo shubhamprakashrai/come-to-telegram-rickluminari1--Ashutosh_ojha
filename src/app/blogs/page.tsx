@@ -17,53 +17,6 @@ type BlogPost = {
   created_at: string;
 };
 
-const FALLBACK_BLOGS: BlogPost[] = [
-  {
-    id: '1',
-    title: 'Navigating Commercial Arbitration & Dispute Resolution in India',
-    slug: 'navigating-commercial-arbitration',
-    category: 'Arbitration & ADR',
-    excerpt: 'Key strategies, statutory timelines, and recent High Court precedents governing modern corporate arbitration.',
-    image_url: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=1200',
-    content: `Commercial arbitration in India has undergone significant evolution following recent legislative amendments and progressive judicial interpretations. This analysis highlights key procedural milestones, enforcement mechanisms under the Arbitration and Conciliation Act, and crucial considerations for corporate contracts.\n\n## Key Considerations\n- Precise drafting of arbitration clauses\n- Selecting appropriate arbitral seats and governing laws\n- Interim relief measures under Section 9 and Section 17\n\n> Parties entering commercial agreements must ensure unambiguous dispute escalation protocols to mitigate protracted litigation delays.`,
-    author: 'Adv. Ashutosh Ojha',
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    title: 'Corporate Governance & Director Liability: Practical Safeguards',
-    slug: 'corporate-governance-director-liability',
-    category: 'Corporate Law',
-    excerpt: 'An overview of fiduciary responsibilities, statutory compliance, and protecting corporate leadership from undue exposure.',
-    image_url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1200',
-    content: `With increasing regulatory scrutiny from authorities, understanding the nuances of board responsibilities is paramount for business leaders.\n\n## Core Fiduciary Duties\n- Duty of care and diligence\n- Avoidance of conflict of interest\n- Statutory filings under the Companies Act\n\n> Adopting proactive governance frameworks shields leadership while promoting sustainable enterprise growth.`,
-    author: 'Adv. Ashutosh Ojha',
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: '3',
-    title: 'High Court Writ Jurisdictions: Fundamental Rights & Relief',
-    slug: 'high-court-writ-jurisdictions',
-    category: 'Constitutional Law',
-    excerpt: 'A practitioner guide on invoking Article 226 for speedy and effective judicial review against administrative overreach.',
-    image_url: 'https://images.unsplash.com/photo-1453728013993-6d66e9c9123a?auto=format&fit=crop&q=80&w=1200',
-    content: `Article 226 of the Constitution of India provides High Courts with broad powers to issue prerogative writs for the enforcement of fundamental and statutory rights.\n\n## Common Prerogative Writs\n- **Mandamus**: Compelling statutory authorities to discharge duties\n- **Certiorari**: Quashing orders passed without lawful jurisdiction\n- **Prohibition**: Preventing inferior tribunals from exceeding powers\n\nEffective presentation of writ petitions requires sharp legal grounds and timely filing.`,
-    author: 'Adv. Ashutosh Ojha',
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: '4',
-    title: 'Contractual Indemnity & Limitation of Liability Clauses',
-    slug: 'contractual-indemnity-clauses',
-    category: 'Corporate Law',
-    excerpt: 'Drafting robust risk allocation clauses under the Indian Contract Act to avoid costly future disputes.',
-    image_url: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&q=80&w=1200',
-    content: `Indemnity clauses are among the most heavily negotiated provisions in commercial contracts. This guide examines the distinction between Section 124 indemnity and common law damages, outlining optimal drafting structures for enterprise risk management.`,
-    author: 'Adv. Ashutosh Ojha',
-    created_at: new Date().toISOString(),
-  },
-];
-
 const DEFAULT_CATEGORIES = [
   'Corporate Law',
   'Arbitration & ADR',
@@ -75,7 +28,7 @@ const DEFAULT_CATEGORIES = [
 const PAGE_SIZE = 6;
 
 export default function BlogsPage() {
-  const [blogs, setBlogs] = useState<BlogPost[]>(FALLBACK_BLOGS);
+  const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
@@ -93,17 +46,17 @@ export default function BlogsPage() {
     async function loadBlogs() {
       try {
         const data = await fetchEncryptedJson<BlogPost[]>('https://ashutosh-api.toonshala.com/api/blogs');
-        if (data && data.length > 0) {
-          setBlogs(data);
-        }
+        setBlogs(data || []);
       } catch (err) {
-        console.log('Using fallback blogs', err);
+        console.error('Failed to load blogs from API', err);
+        setBlogs([]);
       } finally {
         setLoading(false);
       }
     }
     loadBlogs();
   }, []);
+
 
   const filteredBlogs = useMemo(() => {
     return blogs.filter((blog) => {
