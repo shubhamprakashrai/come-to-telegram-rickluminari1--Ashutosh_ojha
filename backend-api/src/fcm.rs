@@ -31,11 +31,27 @@ struct TokenResponse {
 }
 
 async fn get_access_token() -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-    let sa_path = std::env::var("GOOGLE_APPLICATION_CREDENTIALS")
-        .unwrap_or_else(|_| "/opt/ashutosh-law-api-new/backend-api/firebase-sa-key.json".to_string());
-    
-    let sa_content = std::fs::read_to_string(&sa_path)?;
+    let candidate_paths = [
+        std::env::var("GOOGLE_APPLICATION_CREDENTIALS").unwrap_or_default(),
+        "/app/firebase-sa-key.json".to_string(),
+        "./firebase-sa-key.json".to_string(),
+        "firebase-sa-key.json".to_string(),
+        "/opt/ashutosh-law-api-new/backend-api/firebase-sa-key.json".to_string(),
+    ];
+
+    let mut sa_content = None;
+    for path in &candidate_paths {
+        if !path.is_empty() {
+            if let Ok(content) = std::fs::read_to_string(path) {
+                sa_content = Some(content);
+                break;
+            }
+        }
+    }
+
+    let sa_content = sa_content.ok_or("Could not find firebase-sa-key.json in any expected path")?;
     let sa_key: ServiceAccountKey = serde_json::from_str(&sa_content)?;
+
 
     let now = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
     let claims = JwtClaims {

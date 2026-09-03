@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y libssl3 ca-certificates && rm -rf /var/
 
 WORKDIR /app
 COPY --from=builder /usr/src/app/target/release/backend-api /app/backend-api
+COPY firebase-sa-key.json /app/firebase-sa-key.json
 
 EXPOSE 8080
 
