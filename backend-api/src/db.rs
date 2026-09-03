@@ -94,6 +94,39 @@ pub async fn init_db() -> Result<PgPool, sqlx::Error> {
     .execute(&pool)
     .await?;
 
+    // Create practice_categories table
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS practice_categories (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            name VARCHAR(150) UNIQUE NOT NULL,
+            description TEXT,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+        "#,
+    )
+    .execute(&pool)
+    .await?;
+
+    // Seed default categories
+    sqlx::query(
+        r#"
+        INSERT INTO practice_categories (name, description) VALUES
+        ('Civil & Commercial Litigation', 'Expert representation in complex civil disputes and commercial matters before all major courts and tribunals.'),
+        ('Corporate & Business Law', 'Comprehensive legal advisory for businesses including formations, compliance, and corporate governance.'),
+        ('Arbitration & ADR', 'Strategic alternative dispute resolution, mediation, and domestic & international commercial arbitration.'),
+        ('Constitutional Law', 'High Court and Supreme Court writ petitions, fundamental rights protection, and public interest litigation.'),
+        ('Criminal Law & Defense', 'Strategic criminal defense, economic offences, white-collar crime, and trial representation.'),
+        ('Banking & Insolvency (IBC)', 'Insolvency and Bankruptcy Code proceedings, NCLT representation, and debt restructuring.'),
+        ('Property & Real Estate', 'Diligent title verification, property disputes resolution, and real estate transaction structuring.'),
+        ('Intellectual Property (IPR)', 'Trademark registration, copyright enforcement, patent disputes, and brand protection.'),
+        ('Tax & Regulatory Advisory', 'Direct and indirect taxation disputes, GST litigation, and statutory compliance.')
+        ON CONFLICT (name) DO NOTHING;
+        "#,
+    )
+    .execute(&pool)
+    .await?;
 
     Ok(pool)
 }
+

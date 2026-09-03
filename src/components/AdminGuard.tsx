@@ -92,7 +92,7 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
         </div>
         <h2 className="text-2xl font-bold text-white mb-2">Access Restricted</h2>
         <p className="text-gray-400 text-sm max-w-md mb-6">
-          The Google account <span className="text-amber-400 font-semibold">{user.email}</span> is not registered in the PostgreSQL admin database.
+          The Google account <span className="text-amber-400 font-semibold">{user.email}</span> is not authorized for the admin console.
         </p>
         <button
           onClick={logout}

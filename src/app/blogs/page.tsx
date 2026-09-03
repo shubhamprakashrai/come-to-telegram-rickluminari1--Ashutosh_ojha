@@ -17,18 +17,17 @@ type BlogPost = {
   created_at: string;
 };
 
-const DEFAULT_CATEGORIES = [
-  'Corporate Law',
-  'Arbitration & ADR',
-  'Constitutional Law',
-  'Civil Disputes',
-  'Legal Insights',
-];
+type CategoryItem = {
+  id: string;
+  name: string;
+  description?: string;
+};
 
 const PAGE_SIZE = 6;
 
 export default function BlogsPage() {
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
+  const [categories, setCategories] = useState<string[]>(['All']);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
@@ -36,26 +35,27 @@ export default function BlogsPage() {
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const dynamicCategories = useMemo(() => {
-    const fromBlogs = blogs.map((b) => b.category).filter(Boolean);
-    const unique = Array.from(new Set([...DEFAULT_CATEGORIES, ...fromBlogs]));
-    return ['All', ...unique];
-  }, [blogs]);
-
   useEffect(() => {
-    async function loadBlogs() {
+    async function loadData() {
       try {
-        const data = await fetchEncryptedJson<BlogPost[]>('https://ashutosh-api.toonshala.com/api/blogs');
-        setBlogs(data || []);
+        const [blogData, catData] = await Promise.all([
+          fetchEncryptedJson<BlogPost[]>('https://ashutosh-api.toonshala.com/api/blogs'),
+          fetchEncryptedJson<CategoryItem[]>('https://ashutosh-api.toonshala.com/api/categories')
+        ]);
+        setBlogs(blogData || []);
+        if (catData && catData.length > 0) {
+          setCategories(['All', ...catData.map(c => c.name)]);
+        }
       } catch (err) {
-        console.error('Failed to load blogs from API', err);
+        console.error('Failed to load data from API', err);
         setBlogs([]);
       } finally {
         setLoading(false);
       }
     }
-    loadBlogs();
+    loadData();
   }, []);
+
 
 
   const filteredBlogs = useMemo(() => {
@@ -216,8 +216,9 @@ export default function BlogsPage() {
       {/* Category Pills */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
         <div className="flex items-center space-x-2 overflow-x-auto pb-3 scrollbar-none">
-          {dynamicCategories.map((cat) => (
+          {categories.map((cat) => (
             <button
+
               key={cat}
               onClick={() => handleCategoryChange(cat)}
               className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
@@ -235,8 +236,9 @@ export default function BlogsPage() {
       {/* Articles Grid */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
         {loading ? (
-          <div className="p-20 text-center text-gray-400 text-sm">
-            Loading articles from PostgreSQL...
+          <div className="p-24 flex flex-col items-center justify-center space-y-4">
+            <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+            <p className="text-gray-400 text-sm font-medium">Loading publications...</p>
           </div>
         ) : filteredBlogs.length === 0 ? (
           <div className="p-20 text-center space-y-4">

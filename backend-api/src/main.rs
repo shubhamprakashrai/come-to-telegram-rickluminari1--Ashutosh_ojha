@@ -5,7 +5,7 @@ mod models;
 
 use axum::{
     extract::{Path, State},
-    routing::{delete, get, post},
+    routing::{delete, get, post, put},
     Router,
     Json,
     http::StatusCode,
@@ -15,7 +15,7 @@ use tower_http::cors::{Any, CorsLayer};
 use std::net::SocketAddr;
 use tracing::{info, error};
 use sqlx::PgPool;
-use models::{ContactFormRequest, Lead, RegisterTokenRequest, AdminUser, AddAdminRequest, VerifyAdminRequest, BlogPost, CreateBlogRequest};
+use models::{ContactFormRequest, Lead, RegisterTokenRequest, AdminUser, AddAdminRequest, VerifyAdminRequest, BlogPost, CreateBlogRequest, PracticeCategory, CreateCategoryRequest};
 
 #[derive(Clone)]
 struct AppState {
@@ -29,6 +29,10 @@ async fn main() {
     tracing_subscriber::fmt::init();
 
     let db_pool = db::init_db().await.expect("Failed to initialize database");
+    state_setup(db_pool).await;
+}
+
+async fn state_setup(db_pool: PgPool) {
     let state = AppState { db: db_pool };
 
     let cors = CorsLayer::new()
@@ -49,8 +53,13 @@ async fn main() {
         .route("/api/blogs", get(get_blogs))
         .route("/api/blogs", post(create_blog))
         .route("/api/blogs/:id", delete(delete_blog))
+        .route("/api/categories", get(get_categories))
+        .route("/api/categories", post(create_category))
+        .route("/api/categories/:id", put(update_category))
+        .route("/api/categories/:id", delete(delete_category))
         .layer(cors)
         .with_state(state);
+
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
     info!("Server running on http://{}", addr);
@@ -349,4 +358,96 @@ async fn delete_blog(
         }
     }
 }
+
+async fn get_categories(
+    State(state): State<AppState>,
+) -> Result<Json<Value>, (StatusCode, String)> {
+    let rows = sqlx::query_as::<_, PracticeCategory>(
+        "SELECT id, name, description, created_at FROM practice_categories ORDER BY name ASC"
+    )
+    .fetch_all(&state.db)
+    .await;
+
+    match rows {
+        Ok(categories) => Ok(Json(crypto::encrypt_response(&json!(categories)))),
+        Err(e) => {
+            error!("Failed to fetch categories: {}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()))
+        }
+    }
+}
+
+async fn create_category(
+    State(state): State<AppState>,
+    Json(payload): Json<CreateCategoryRequest>,
+) -> Result<Json<Value>, (StatusCode, String)> {
+    let cat_id = uuid::Uuid::new_v4();
+    let result = sqlx::query(
+        "INSERT INTO practice_categories (id, name, description, created_at) VALUES ($1, $2, $3, NOW()) ON CONFLICT (name) DO UPDATE SET description = EXCLUDED.description"
+    )
+    .bind(cat_id)
+    .bind(&payload.name)
+    .bind(&payload.description)
+    .execute(&state.db)
+    .await;
+
+    match result {
+        Ok(_) => {
+            info!("Created/updated category: {}", payload.name);
+            Ok(Json(crypto::encrypt_response(&json!({ "status": "success", "id": cat_id, "name": payload.name }))))
+        }
+        Err(e) => {
+            error!("Failed to create category: {}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()))
+        }
+    }
+}
+
+async fn update_category(
+    State(state): State<AppState>,
+    Path(id): Path<uuid::Uuid>,
+    Json(payload): Json<CreateCategoryRequest>,
+) -> Result<Json<Value>, (StatusCode, String)> {
+    let result = sqlx::query(
+        "UPDATE practice_categories SET name = $1, description = $2 WHERE id = $3"
+    )
+    .bind(&payload.name)
+    .bind(&payload.description)
+    .bind(id)
+    .execute(&state.db)
+    .await;
+
+    match result {
+        Ok(_) => {
+            info!("Updated category: {}", id);
+            Ok(Json(crypto::encrypt_response(&json!({ "status": "success", "message": "Category updated" }))))
+        }
+        Err(e) => {
+            error!("Failed to update category: {}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()))
+        }
+    }
+}
+
+async fn delete_category(
+    State(state): State<AppState>,
+    Path(id): Path<uuid::Uuid>,
+) -> Result<Json<Value>, (StatusCode, String)> {
+    let result = sqlx::query("DELETE FROM practice_categories WHERE id = $1")
+        .bind(id)
+        .execute(&state.db)
+        .await;
+
+    match result {
+        Ok(_) => {
+            info!("Deleted category: {}", id);
+            Ok(Json(crypto::encrypt_response(&json!({ "status": "success", "message": "Category deleted" }))))
+        }
+        Err(e) => {
+            error!("Failed to delete category: {}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()))
+        }
+    }
+}
+
 

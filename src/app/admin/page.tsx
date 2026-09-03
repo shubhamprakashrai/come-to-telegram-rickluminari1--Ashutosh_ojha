@@ -31,18 +31,12 @@ type BlogPost = {
   created_at: string;
 };
 
-const DEFAULT_CATEGORIES = [
-  'Legal Insights',
-  'Corporate Law',
-  'Civil Disputes',
-  'High Court Updates',
-  'Constitutional Law',
-  'Arbitration & ADR',
-  'Criminal Law & Defense',
-  'Intellectual Property (IPR)',
-  'Banking & Insolvency (IBC)',
-  'Tax & Regulatory Advisory'
-];
+type CategoryItem = {
+  id: string;
+  name: string;
+  description?: string;
+  created_at?: string;
+};
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
@@ -61,10 +55,11 @@ export default function AdminDashboard() {
   const [loadingBlogs, setLoadingBlogs] = useState(false);
   const [showPostModal, setShowPostModal] = useState(false);
 
-  // Categories state
-  const [managedCategories, setManagedCategories] = useState<string[]>(DEFAULT_CATEGORIES);
+  // Categories state (Synced with PostgreSQL)
+  const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
   const [newCategoryInput, setNewCategoryInput] = useState('');
-  const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
   const [editCategoryInput, setEditCategoryInput] = useState('');
   const [isAddingNewCat, setIsAddingNewCat] = useState(false);
   const [customCatInput, setCustomCatInput] = useState('');
@@ -72,83 +67,88 @@ export default function AdminDashboard() {
   
   // Editor form state
   const [postTitle, setPostTitle] = useState('');
-  const [postCategory, setPostCategory] = useState('Legal Insights');
+  const [postCategory, setPostCategory] = useState('');
   const [postExcerpt, setPostExcerpt] = useState('');
   const [postImageUrl, setPostImageUrl] = useState('');
   const [postContentHtml, setPostContentHtml] = useState('');
   const [submittingPost, setSubmittingPost] = useState(false);
   const [postMsg, setPostMsg] = useState<{ text: string; error?: boolean } | null>(null);
 
-  // Load saved categories from localStorage
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('ashutosh_managed_categories');
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setManagedCategories(parsed);
-          }
-        } catch (e) {
-          console.error(e);
-        }
+  const fetchCategories = useCallback(async () => {
+    setLoadingCategories(true);
+    try {
+      const data = await fetchEncryptedJson<CategoryItem[]>('https://ashutosh-api.toonshala.com/api/categories');
+      setCategories(data || []);
+      if (data && data.length > 0 && !postCategory) {
+        setPostCategory(data[0].name);
       }
+    } catch (e) {
+      console.error('Failed to fetch categories from PostgreSQL', e);
+    } finally {
+      setLoadingCategories(false);
     }
-  }, []);
+  }, [postCategory]);
 
-  const persistCategories = (list: string[]) => {
-    setManagedCategories(list);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('ashutosh_managed_categories', JSON.stringify(list));
-    }
-  };
-
-  const handleAddCategory = (nameToAdd: string) => {
+  const handleAddCategory = async (nameToAdd: string) => {
     const trimmed = nameToAdd.trim();
     if (!trimmed) return;
-    if (managedCategories.some(c => c.toLowerCase() === trimmed.toLowerCase())) {
-      setCategoryMsg({ text: 'Category already exists', error: true });
-      return;
+    try {
+      const res = await fetch('https://ashutosh-api.toonshala.com/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: trimmed, description: 'Specialized legal advisory and litigation representation.' }),
+      });
+      if (res.ok) {
+        setCategoryMsg({ text: `Category "${trimmed}" created in database!` });
+        setNewCategoryInput('');
+        fetchCategories();
+        setTimeout(() => setCategoryMsg(null), 2500);
+      } else {
+        setCategoryMsg({ text: 'Failed to create category', error: true });
+      }
+    } catch (e) {
+      console.error(e);
+      setCategoryMsg({ text: 'Error connecting to database', error: true });
     }
-    const updated = [...managedCategories, trimmed];
-    persistCategories(updated);
-    setCategoryMsg({ text: `Category "${trimmed}" created successfully!` });
-    setNewCategoryInput('');
-    setTimeout(() => setCategoryMsg(null), 2500);
   };
 
-  const handleUpdateCategory = (oldName: string, newName: string) => {
+  const handleUpdateCategory = async (id: string, newName: string) => {
     const trimmed = newName.trim();
-    if (!trimmed || trimmed === oldName) {
-      setEditingCategory(null);
+    if (!trimmed) {
+      setEditingCategoryId(null);
       return;
     }
-    const updated = managedCategories.map(c => c === oldName ? trimmed : c);
-    persistCategories(updated);
-    setEditingCategory(null);
-    setCategoryMsg({ text: `Category renamed from "${oldName}" to "${trimmed}"!` });
-    setTimeout(() => setCategoryMsg(null), 2500);
+    try {
+      const res = await fetch(`https://ashutosh-api.toonshala.com/api/categories/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: trimmed }),
+      });
+      if (res.ok) {
+        setEditingCategoryId(null);
+        setCategoryMsg({ text: `Category updated to "${trimmed}"!` });
+        fetchCategories();
+        setTimeout(() => setCategoryMsg(null), 2500);
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  const handleDeleteCategory = (nameToDelete: string) => {
-    const count = blogs.filter(b => b.category.toLowerCase() === nameToDelete.toLowerCase()).length;
-    const confirmText = count > 0 
-      ? `"${nameToDelete}" is used in ${count} published articles. Are you sure you want to delete it?`
-      : `Are you sure you want to delete category "${nameToDelete}"?`;
-    
-    if (!confirm(confirmText)) return;
-
-    const updated = managedCategories.filter(c => c !== nameToDelete);
-    persistCategories(updated);
-    setCategoryMsg({ text: `Category "${nameToDelete}" removed.` });
-    setTimeout(() => setCategoryMsg(null), 2500);
-  };
-
-  const handleResetCategories = () => {
-    if (!confirm('Reset all categories back to initial defaults?')) return;
-    persistCategories(DEFAULT_CATEGORIES);
-    setCategoryMsg({ text: 'Categories reset to defaults.' });
-    setTimeout(() => setCategoryMsg(null), 2500);
+  const handleDeleteCategory = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to delete "${name}"? It will also be removed from the Homepage Practice Areas.`)) return;
+    try {
+      const res = await fetch(`https://ashutosh-api.toonshala.com/api/categories/${id}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        setCategoryMsg({ text: `Category "${name}" removed from database and homepage.` });
+        fetchCategories();
+        setTimeout(() => setCategoryMsg(null), 2500);
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const fetchAdmins = useCallback(async () => {
@@ -176,12 +176,15 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => {
+    fetchCategories();
     if (activeTab === 'admins') {
       fetchAdmins();
+    } else if (activeTab === 'categories') {
+      fetchCategories();
     } else {
       fetchBlogs();
     }
-  }, [activeTab, fetchAdmins, fetchBlogs]);
+  }, [activeTab, fetchAdmins, fetchBlogs, fetchCategories]);
 
   const handleAddAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -198,7 +201,7 @@ export default function AdminDashboard() {
 
       if (res.ok) {
         await decryptEnvelope(await res.json());
-        setAdminMsg({ text: `Admin ${newEmail} added to PostgreSQL!` });
+        setAdminMsg({ text: `Admin access granted to ${newEmail}!` });
         setNewEmail('');
         fetchAdmins();
       } else {
@@ -229,8 +232,7 @@ export default function AdminDashboard() {
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Determine category
-    const finalCategory = (isAddingNewCat && customCatInput.trim()) ? customCatInput.trim() : postCategory;
+    const finalCategory = (isAddingNewCat && customCatInput.trim()) ? customCatInput.trim() : (postCategory || (categories[0]?.name ?? 'General Law'));
     if (!finalCategory) {
       alert('Please select or specify a practice category');
       return;
@@ -422,7 +424,7 @@ export default function AdminDashboard() {
                     Manage <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
                   </span>
                 </div>
-                <p className="text-3xl font-bold text-amber-400">{managedCategories.length}</p>
+                <p className="text-3xl font-bold text-amber-400">{categories.length}</p>
               </div>
               <div className="bg-slate-900 border border-white/5 p-6 rounded-2xl">
                 <h3 className="text-gray-400 text-sm font-medium mb-2">Cloudflare R2 Storage</h3>
@@ -442,8 +444,9 @@ export default function AdminDashboard() {
               </div>
 
               {loadingBlogs ? (
-                <div className="p-12 text-center text-gray-400 text-sm">
-                  Loading articles from VPS PostgreSQL...
+                <div className="p-16 flex flex-col items-center justify-center space-y-3">
+                  <div className="w-7 h-7 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                  <p className="text-gray-400 text-sm">Loading articles...</p>
                 </div>
               ) : blogs.length === 0 ? (
                 <div className="p-12 flex flex-col items-center justify-center text-center">
@@ -525,29 +528,18 @@ export default function AdminDashboard() {
             animate={{ opacity: 1, y: 0 }}
             className="max-w-4xl mx-auto space-y-8"
           >
-            <div className="flex justify-between items-start">
-              <div>
-                <h1 className="text-3xl font-bold text-white mb-2">Practice Categories</h1>
-                <p className="text-gray-400 text-sm">
-                  Add, update, rename, or delete practice domains. All updates automatically sync with the article editor and public blog filters.
-                </p>
-              </div>
-
-              <button
-                onClick={handleResetCategories}
-                className="flex items-center px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-xs font-medium border border-white/5 transition-colors shrink-0"
-                title="Reset to default legal categories"
-              >
-                <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
-                Reset Defaults
-              </button>
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-2">Practice Categories</h1>
+              <p className="text-gray-400 text-sm">
+                Add, rename, or delete practice domains. All updates automatically sync with Homepage Practice Areas, Blog Filters, and the Article Editor.
+              </p>
             </div>
 
             {/* Add Category Form */}
             <div className="bg-slate-900 border border-white/5 rounded-2xl p-6">
               <h2 className="text-lg font-semibold text-white mb-4 flex items-center">
                 <PlusCircle className="w-5 h-5 text-amber-500 mr-2" />
-                Add New Category
+                Add New Practice Category
               </h2>
               <form 
                 onSubmit={(e) => {
@@ -583,94 +575,105 @@ export default function AdminDashboard() {
             {/* Categories List Grid */}
             <div className="bg-slate-900 border border-white/5 rounded-2xl p-6 space-y-6">
               <div className="flex justify-between items-center border-b border-white/5 pb-4">
-                <h2 className="text-lg font-semibold text-white">Active Categories ({managedCategories.length})</h2>
-                <span className="text-xs text-gray-500 font-mono">Live synced</span>
+                <h2 className="text-lg font-semibold text-white">Active Categories ({categories.length})</h2>
+                <button onClick={fetchCategories} className="text-xs text-amber-400 hover:underline">
+                  Refresh List
+                </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {managedCategories.map((cat) => {
-                  const articleCount = blogs.filter(b => b.category.toLowerCase() === cat.toLowerCase()).length;
-                  const isEditing = editingCategory === cat;
+              {loadingCategories ? (
+                <div className="p-12 flex flex-col items-center justify-center space-y-3">
+                  <div className="w-7 h-7 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                  <p className="text-gray-400 text-sm">Loading categories...</p>
+                </div>
+              ) : categories.length === 0 ? (
+                <div className="p-8 text-center text-gray-500 text-sm">No categories found in database.</div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {categories.map((cat) => {
+                    const articleCount = blogs.filter(b => b.category.toLowerCase() === cat.name.toLowerCase()).length;
+                    const isEditing = editingCategoryId === cat.id;
 
-                  return (
-                    <div 
-                      key={cat} 
-                      className="p-4 rounded-2xl bg-slate-950 border border-white/5 flex flex-col justify-between hover:border-amber-500/30 transition-all space-y-3"
-                    >
-                      {isEditing ? (
-                        <div className="flex gap-2 items-center">
-                          <input
-                            type="text"
-                            value={editCategoryInput}
-                            onChange={(e) => setEditCategoryInput(e.target.value)}
-                            className="flex-1 bg-slate-900 border border-amber-500 rounded-lg px-3 py-1.5 text-white text-xs focus:outline-none"
-                            autoFocus
-                          />
-                          <button
-                            onClick={() => handleUpdateCategory(cat, editCategoryInput)}
-                            className="p-1.5 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 rounded-lg"
-                            title="Save"
-                          >
-                            <Check className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => setEditingCategory(null)}
-                            className="p-1.5 bg-white/5 text-gray-400 hover:bg-white/10 rounded-lg"
-                            title="Cancel"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 text-amber-400 shrink-0">
-                              <Tag className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-bold text-white">{cat}</p>
-                              <p className="text-xs text-gray-500">{articleCount} published {articleCount === 1 ? 'article' : 'articles'}</p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center space-x-1">
+                    return (
+                      <div 
+                        key={cat.id} 
+                        className="p-4 rounded-2xl bg-slate-950 border border-white/5 flex flex-col justify-between hover:border-amber-500/30 transition-all space-y-3"
+                      >
+                        {isEditing ? (
+                          <div className="flex gap-2 items-center">
+                            <input
+                              type="text"
+                              value={editCategoryInput}
+                              onChange={(e) => setEditCategoryInput(e.target.value)}
+                              className="flex-1 bg-slate-900 border border-amber-500 rounded-lg px-3 py-1.5 text-white text-xs focus:outline-none"
+                              autoFocus
+                            />
                             <button
-                              onClick={() => {
-                                setEditingCategory(cat);
-                                setEditCategoryInput(cat);
-                              }}
-                              className="p-1.5 text-gray-400 hover:text-amber-400 hover:bg-white/5 rounded-lg transition-colors"
-                              title="Rename / Update Category"
+                              onClick={() => handleUpdateCategory(cat.id, editCategoryInput)}
+                              className="p-1.5 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 rounded-lg"
+                              title="Save"
                             >
-                              <Edit2 className="w-3.5 h-3.5" />
+                              <Check className="w-4 h-4" />
                             </button>
                             <button
-                              onClick={() => handleDeleteCategory(cat)}
-                              className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                              title="Delete Category"
+                              onClick={() => setEditingCategoryId(null)}
+                              className="p-1.5 bg-white/5 text-gray-400 hover:bg-white/10 rounded-lg"
+                              title="Cancel"
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <X className="w-4 h-4" />
                             </button>
                           </div>
-                        </div>
-                      )}
+                        ) : (
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 text-amber-400 shrink-0">
+                                <Tag className="w-4 h-4" />
+                              </div>
+                              <div>
+                                <p className="text-sm font-bold text-white">{cat.name}</p>
+                                <p className="text-xs text-gray-500">{articleCount} published {articleCount === 1 ? 'article' : 'articles'}</p>
+                              </div>
+                            </div>
 
-                      <div className="pt-2 border-t border-white/5 flex justify-end">
-                        <button
-                          onClick={() => {
-                            setPostCategory(cat);
-                            setShowPostModal(true);
-                          }}
-                          className="px-3 py-1 bg-white/5 hover:bg-amber-500/15 text-gray-300 hover:text-amber-400 rounded-lg text-xs font-semibold border border-white/5 transition-all flex items-center"
-                        >
-                          <Plus className="w-3 h-3 mr-1" />
-                          Write in this domain
-                        </button>
+                            <div className="flex items-center space-x-1">
+                              <button
+                                onClick={() => {
+                                  setEditingCategoryId(cat.id);
+                                  setEditCategoryInput(cat.name);
+                                }}
+                                className="p-1.5 text-gray-400 hover:text-amber-400 hover:bg-white/5 rounded-lg transition-colors"
+                                title="Rename Category"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteCategory(cat.id, cat.name)}
+                                className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                                title="Delete Category"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="pt-2 border-t border-white/5 flex justify-end">
+                          <button
+                            onClick={() => {
+                              setPostCategory(cat.name);
+                              setShowPostModal(true);
+                            }}
+                            className="px-3 py-1 bg-white/5 hover:bg-amber-500/15 text-gray-300 hover:text-amber-400 rounded-lg text-xs font-semibold border border-white/5 transition-all flex items-center"
+                          >
+                            <Plus className="w-3 h-3 mr-1" />
+                            Write in this domain
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </motion.div>
         ) : (
@@ -683,7 +686,7 @@ export default function AdminDashboard() {
             <div>
               <h1 className="text-3xl font-bold text-white mb-2">Manage Admin Team</h1>
               <p className="text-gray-400 text-sm">
-                Control which Google accounts have access to this Web Admin console and the Mobile Admin App. All records are synced directly in PostgreSQL on your VPS.
+                Control which Google accounts have access to this Web Admin console and the Mobile Admin App.
               </p>
             </div>
 
@@ -730,13 +733,14 @@ export default function AdminDashboard() {
               <div className="p-6 border-b border-white/5 flex justify-between items-center">
                 <h2 className="text-lg font-semibold text-white">Authorized Users ({admins.length})</h2>
                 <button onClick={fetchAdmins} className="text-xs text-amber-400 hover:underline">
-                  Refresh
+                  Refresh List
                 </button>
               </div>
 
               {loadingAdmins ? (
-                <div className="p-8 text-center text-gray-400 text-sm">
-                  Loading admin list from VPS...
+                <div className="p-12 flex flex-col items-center justify-center space-y-3">
+                  <div className="w-7 h-7 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                  <p className="text-gray-400 text-sm">Loading authorized admins...</p>
                 </div>
               ) : admins.length === 0 ? (
                 <div className="p-8 text-center text-gray-400 text-sm">
@@ -862,8 +866,8 @@ export default function AdminDashboard() {
                         onChange={(e) => setPostCategory(e.target.value)}
                         className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-500"
                       >
-                        {managedCategories.map((cat) => (
-                          <option key={cat} value={cat}>{cat}</option>
+                        {categories.map((cat) => (
+                          <option key={cat.id} value={cat.name}>{cat.name}</option>
                         ))}
                       </select>
                     )}
