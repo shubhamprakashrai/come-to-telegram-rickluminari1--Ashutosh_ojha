@@ -535,13 +535,18 @@ function App() {
                 </div>
 
                 <div className="flex items-start">
-                  <div className="flex items-center justify-center w-12 h-12 bg-amber-600 rounded-lg mr-4 flex-shrink-0">
+                  <div className="flex items-center justify-center w-12 h-12 bg-amber-600 rounded-lg mr-4 flex-shrink-0 mt-1">
                     <MapPin className="w-6 h-6 text-white" />
                   </div>
-                  <div>
-                    <p className="font-medium text-white mb-1">Office Address</p>
-                    <p className="text-gray-300">311-B, Tower B, Third Floor, The Ithum, Sector 62, Noida <br />Uttar Pradesh - 201301</p>
-
+                  <div className="space-y-4">
+                    <div>
+                      <p className="font-medium text-white mb-1">Noida Office</p>
+                      <p className="text-gray-300">Office No. 1610, Tower A, 16th Floor, Spectrum Metro Mall, Phase-1, Sector 75, Noida - 201301.</p>
+                    </div>
+                    <div>
+                      <p className="font-medium text-white mb-1">Kolkata Office</p>
+                      <p className="text-gray-300">10, Kiran Shankar Roy Road, B.B.D Bagh, Kolkata - 700001.</p>
+                    </div>
                   </div>
                 </div>
 
