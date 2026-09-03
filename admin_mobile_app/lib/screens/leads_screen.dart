@@ -9,17 +9,28 @@ class LeadsScreen extends StatefulWidget {
   State<LeadsScreen> createState() => _LeadsScreenState();
 }
 
-class _LeadsScreenState extends State<LeadsScreen> {
+class _LeadsScreenState extends State<LeadsScreen> with SingleTickerProviderStateMixin {
   List<dynamic> _leads = [];
   bool _isLoading = true;
   String? _error;
+  late AnimationController _animController;
 
   static const String _apiBase = 'https://ashutosh-api.toonshala.com';
 
   @override
   void initState() {
     super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
     _fetchLeads();
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchLeads() async {
@@ -31,6 +42,7 @@ class _LeadsScreenState extends State<LeadsScreen> {
           _leads = json.decode(response.body);
           _isLoading = false;
         });
+        _animController.forward(from: 0.0);
       } else {
         setState(() { _error = 'Server error (${response.statusCode})'; _isLoading = false; });
       }
@@ -45,9 +57,9 @@ class _LeadsScreenState extends State<LeadsScreen> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF0A0F1E), Color(0xFF0F172A), Color(0xFF1A1F35)],
           ),
         ),
         child: SafeArea(
@@ -55,18 +67,43 @@ class _LeadsScreenState extends State<LeadsScreen> {
             children: [
               // Header
               Padding(
-                padding: const EdgeInsets.fromLTRB(8, 16, 24, 16),
+                padding: const EdgeInsets.fromLTRB(16, 16, 20, 16),
                 child: Row(
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
-                      onPressed: () => Navigator.pop(context),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: Colors.white.withOpacity(0.08)),
+                        ),
+                        child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+                      ),
                     ),
-                    const Text('Leads', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                    const SizedBox(width: 14),
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Client Leads', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.5)),
+                        Text('Inquiries & Consultations', style: TextStyle(fontSize: 12, color: Colors.white38)),
+                      ],
+                    ),
                     const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.refresh_rounded, color: Color(0xFFD97706)),
-                      onPressed: _fetchLeads,
+                    GestureDetector(
+                      onTap: _fetchLeads,
+                      child: Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFD97706).withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFFD97706).withOpacity(0.25)),
+                        ),
+                        child: const Icon(Icons.refresh_rounded, color: Color(0xFFD97706), size: 20),
+                      ),
                     ),
                   ],
                 ),
@@ -75,18 +112,44 @@ class _LeadsScreenState extends State<LeadsScreen> {
               // Content
               Expanded(
                 child: _isLoading
-                    ? const Center(child: CircularProgressIndicator(color: Color(0xFFD97706)))
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFFD97706),
+                          strokeWidth: 2.5,
+                        ),
+                      )
                     : _error != null
                         ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.wifi_off_rounded, size: 60, color: Colors.white.withOpacity(0.2)),
-                                const SizedBox(height: 16),
-                                Text(_error!, style: TextStyle(color: Colors.white.withOpacity(0.5))),
-                                const SizedBox(height: 20),
-                                ElevatedButton(onPressed: _fetchLeads, child: const Text('Retry')),
-                              ],
+                            child: Padding(
+                              padding: const EdgeInsets.all(32),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    width: 72,
+                                    height: 72,
+                                    decoration: BoxDecoration(
+                                      color: Colors.redAccent.withOpacity(0.1),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Icons.cloud_off_rounded, size: 36, color: Colors.redAccent),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(_error!, style: const TextStyle(color: Colors.white70, fontSize: 15, fontWeight: FontWeight.w500)),
+                                  const SizedBox(height: 20),
+                                  ElevatedButton.icon(
+                                    onPressed: _fetchLeads,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFFD97706),
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    ),
+                                    icon: const Icon(Icons.refresh_rounded, size: 18),
+                                    label: const Text('Try Again', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  ),
+                                ],
+                              ),
                             ),
                           )
                         : _leads.isEmpty
@@ -94,19 +157,30 @@ class _LeadsScreenState extends State<LeadsScreen> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.inbox_rounded, size: 60, color: Colors.white.withOpacity(0.2)),
+                                    Container(
+                                      width: 80,
+                                      height: 80,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.04),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(Icons.mark_email_unread_outlined, size: 38, color: Colors.white.withOpacity(0.3)),
+                                    ),
                                     const SizedBox(height: 16),
-                                    Text('No leads yet', style: TextStyle(color: Colors.white.withOpacity(0.5))),
+                                    const Text('No leads yet', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                                    const SizedBox(height: 6),
+                                    Text('New contact submissions will appear here', style: TextStyle(color: Colors.white.withOpacity(0.35), fontSize: 13)),
                                   ],
                                 ),
                               )
                             : RefreshIndicator(
                                 onRefresh: _fetchLeads,
                                 color: const Color(0xFFD97706),
+                                backgroundColor: const Color(0xFF1E293B),
                                 child: ListView.separated(
-                                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
                                   itemCount: _leads.length,
-                                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                                  separatorBuilder: (_, __) => const SizedBox(height: 14),
                                   itemBuilder: (context, index) {
                                     final lead = _leads[index];
                                     return _LeadCard(lead: lead);
@@ -128,58 +202,99 @@ class _LeadCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final name = lead['name'] ?? 'Unknown';
+    final email = lead['email'] ?? '';
+    final queryType = lead['query_type'] ?? 'General';
+    final initial = name.isNotEmpty ? name[0].toUpperCase() : 'A';
+
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => LeadDetailScreen(lead: lead)),
       ),
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withOpacity(0.08)),
+          color: Colors.white.withOpacity(0.04),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: Colors.white.withOpacity(0.06)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 15,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           children: [
-            CircleAvatar(
-              radius: 26,
-              backgroundColor: const Color(0xFFD97706).withOpacity(0.15),
-              child: Text(
-                (lead['name'] ?? 'A')[0].toUpperCase(),
-                style: const TextStyle(color: Color(0xFFD97706), fontWeight: FontWeight.bold, fontSize: 20),
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFFD97706).withOpacity(0.25),
+                    const Color(0xFFF59E0B).withOpacity(0.08),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFD97706).withOpacity(0.3)),
+              ),
+              child: Center(
+                child: Text(
+                  initial,
+                  style: const TextStyle(color: Color(0xFFD97706), fontWeight: FontWeight.w800, fontSize: 20),
+                ),
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    lead['name'] ?? 'Unknown',
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    lead['email'] ?? '',
-                    style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 13),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          name,
+                          style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 16),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFD97706).withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFFD97706).withOpacity(0.25)),
+                        ),
+                        child: Text(
+                          queryType,
+                          style: const TextStyle(color: Color(0xFFD97706), fontSize: 10, fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD97706).withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      lead['query_type'] ?? 'General',
-                      style: const TextStyle(color: Color(0xFFD97706), fontSize: 11, fontWeight: FontWeight.w600),
-                    ),
+                  Row(
+                    children: [
+                      Icon(Icons.mail_outline_rounded, size: 14, color: Colors.white.withOpacity(0.35)),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          email,
+                          style: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.white.withOpacity(0.3)),
+            const SizedBox(width: 8),
+            Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.white.withOpacity(0.25)),
           ],
         ),
       ),
@@ -191,78 +306,154 @@ class LeadDetailScreen extends StatelessWidget {
   final Map<String, dynamic> lead;
   const LeadDetailScreen({super.key, required this.lead});
 
-  Widget _buildField(String label, String? value) {
+  Widget _buildField(String label, String? value, IconData icon) {
     if (value == null || value.isEmpty) return const SizedBox.shrink();
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFFD97706), fontWeight: FontWeight.w600, letterSpacing: 1)),
-          const SizedBox(height: 8),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.white.withOpacity(0.08)),
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.04),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white.withOpacity(0.06)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, size: 15, color: const Color(0xFFD97706)),
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: const TextStyle(fontSize: 11, color: Color(0xFFD97706), fontWeight: FontWeight.w700, letterSpacing: 1.2),
+                ),
+              ],
             ),
-            child: Text(value, style: const TextStyle(color: Colors.white, fontSize: 15)),
-          ),
-        ],
+            const SizedBox(height: 10),
+            SelectableText(
+              value,
+              style: const TextStyle(color: Colors.white, fontSize: 15, height: 1.4),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final name = lead['name'] ?? 'Unknown Client';
+    final initial = name.isNotEmpty ? name[0].toUpperCase() : 'A';
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF0A0F1E), Color(0xFF0F172A), Color(0xFF1A1F35)],
           ),
         ),
         child: SafeArea(
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(8, 16, 24, 16),
+                padding: const EdgeInsets.fromLTRB(16, 16, 20, 16),
                 child: Row(
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
-                      onPressed: () => Navigator.pop(context),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: Colors.white.withOpacity(0.08)),
+                        ),
+                        child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+                      ),
                     ),
-                    const Text('Lead Details', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                    const SizedBox(width: 14),
+                    const Text('Lead Profile', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.5)),
                   ],
                 ),
               ),
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(20),
                   child: Column(
                     children: [
                       // Avatar Hero
-                      CircleAvatar(
-                        radius: 45,
-                        backgroundColor: const Color(0xFFD97706).withOpacity(0.15),
-                        child: Text(
-                          (lead['name'] ?? 'A')[0].toUpperCase(),
-                          style: const TextStyle(color: Color(0xFFD97706), fontWeight: FontWeight.bold, fontSize: 40),
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              const Color(0xFFD97706).withOpacity(0.15),
+                              const Color(0xFFF59E0B).withOpacity(0.03),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(28),
+                          border: Border.all(color: const Color(0xFFD97706).withOpacity(0.25)),
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFFD97706), Color(0xFFF59E0B)],
+                                ),
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFFD97706).withOpacity(0.35),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: Text(
+                                  initial,
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 36),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              name,
+                              style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.08),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                lead['query_type'] ?? 'Consultation',
+                                style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 12, fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      Text(lead['name'] ?? '', style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 32),
-                      _buildField('EMAIL', lead['email']),
-                      _buildField('PHONE', lead['phone']),
-                      _buildField('QUERY TYPE', lead['query_type']),
-                      _buildField('MESSAGE', lead['message']),
-                      _buildField('SUBMITTED AT', lead['created_at']),
+                      const SizedBox(height: 24),
+
+                      _buildField('EMAIL ADDRESS', lead['email'], Icons.email_outlined),
+                      _buildField('PHONE NUMBER', lead['phone'], Icons.phone_outlined),
+                      _buildField('QUERY TYPE', lead['query_type'], Icons.category_outlined),
+                      _buildField('CLIENT MESSAGE', lead['message'], Icons.message_outlined),
+                      _buildField('SUBMISSION DATE', lead['created_at'], Icons.access_time_rounded),
                     ],
                   ),
                 ),
