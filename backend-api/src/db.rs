@@ -50,6 +50,13 @@ pub async fn init_db() -> Result<PgPool, sqlx::Error> {
             role VARCHAR(50) NOT NULL DEFAULT 'admin',
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
+        "#,
+    )
+    .execute(&pool)
+    .await?;
+
+    sqlx::query(
+        r#"
         INSERT INTO admin_users (email, role) 
         VALUES ('ashishraimsd@gmail.com', 'superadmin')
         ON CONFLICT (email) DO NOTHING;
@@ -57,6 +64,26 @@ pub async fn init_db() -> Result<PgPool, sqlx::Error> {
     )
     .execute(&pool)
     .await?;
+
+    // Create blogs table
+    sqlx::query(
+        r#"
+        CREATE TABLE IF NOT EXISTS blogs (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            title VARCHAR(255) NOT NULL,
+            slug VARCHAR(255) UNIQUE NOT NULL,
+            category VARCHAR(100) NOT NULL,
+            excerpt TEXT NOT NULL,
+            content TEXT NOT NULL,
+            author VARCHAR(100) NOT NULL DEFAULT 'Ashutosh Ojha',
+            published BOOLEAN NOT NULL DEFAULT true,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+        "#,
+    )
+    .execute(&pool)
+    .await?;
+
 
     Ok(pool)
 }

@@ -15,7 +15,7 @@ use tower_http::cors::{Any, CorsLayer};
 use std::net::SocketAddr;
 use tracing::{info, error};
 use sqlx::PgPool;
-use models::{ContactFormRequest, Lead, RegisterTokenRequest, AdminUser, AddAdminRequest, VerifyAdminRequest};
+use models::{ContactFormRequest, Lead, RegisterTokenRequest, AdminUser, AddAdminRequest, VerifyAdminRequest, BlogPost, CreateBlogRequest};
 
 #[derive(Clone)]
 struct AppState {
@@ -46,6 +46,9 @@ async fn main() {
         .route("/api/admins/verify", post(verify_admin))
         .route("/api/admins", post(add_admin))
         .route("/api/admins/:id", delete(delete_admin))
+        .route("/api/blogs", get(get_blogs))
+        .route("/api/blogs", post(create_blog))
+        .route("/api/blogs/:id", delete(delete_blog))
         .layer(cors)
         .with_state(state);
 
@@ -258,3 +261,91 @@ async fn delete_admin(
         }
     }
 }
+
+async fn get_blogs(
+    State(state): State<AppState>,
+) -> Result<Json<Value>, (StatusCode, String)> {
+    let rows = sqlx::query_as::<_, BlogPost>(
+        "SELECT id, title, slug, category, excerpt, content, author, published, created_at FROM blogs ORDER BY created_at DESC"
+    )
+    .fetch_all(&state.db)
+    .await;
+
+    match rows {
+        Ok(blogs) => Ok(Json(crypto::encrypt_response(&json!(blogs)))),
+        Err(e) => {
+            error!("Failed to fetch blogs: {}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()))
+        }
+    }
+}
+
+async fn create_blog(
+    State(state): State<AppState>,
+    Json(payload): Json<CreateBlogRequest>,
+) -> Result<Json<Value>, (StatusCode, String)> {
+    let blog_id = uuid::Uuid::new_v4();
+    let author = payload.author.unwrap_or_else(|| "Ashutosh Ojha".to_string());
+    
+    // Generate simple URL-friendly slug
+    let raw_slug: String = payload.title
+        .to_lowercase()
+        .chars()
+        .map(|c| if c.is_alphanumeric() { c } else { '-' })
+        .collect();
+    let slug = format!("{}-{}", raw_slug.trim_matches('-'), &blog_id.to_string()[..6]);
+
+    let result = sqlx::query(
+        r#"
+        INSERT INTO blogs (id, title, slug, category, excerpt, content, author, published, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, true, NOW())
+        "#,
+    )
+    .bind(blog_id)
+    .bind(&payload.title)
+    .bind(&slug)
+    .bind(&payload.category)
+    .bind(&payload.excerpt)
+    .bind(&payload.content)
+    .bind(&author)
+    .execute(&state.db)
+    .await;
+
+    match result {
+        Ok(_) => {
+            info!("Successfully created blog post: {}", blog_id);
+            Ok(Json(crypto::encrypt_response(&json!({
+                "status": "success",
+                "message": "Blog post published successfully",
+                "id": blog_id,
+                "slug": slug
+            }))))
+        }
+        Err(e) => {
+            error!("Failed to create blog post: {}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()))
+        }
+    }
+}
+
+async fn delete_blog(
+    State(state): State<AppState>,
+    Path(id): Path<uuid::Uuid>,
+) -> Result<Json<Value>, (StatusCode, String)> {
+    let result = sqlx::query("DELETE FROM blogs WHERE id = $1")
+        .bind(id)
+        .execute(&state.db)
+        .await;
+
+    match result {
+        Ok(_) => {
+            info!("Deleted blog post: {}", id);
+            Ok(Json(crypto::encrypt_response(&json!({ "status": "success", "message": "Blog post deleted" }))))
+        }
+        Err(e) => {
+            error!("Failed to delete blog post: {}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()))
+        }
+    }
+}
+

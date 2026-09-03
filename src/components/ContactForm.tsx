@@ -146,7 +146,7 @@ export default function ContactForm() {
                       placeholder=" "
                       className="block w-full px-4 pt-6 pb-2 text-white bg-white/5 border border-white/10 rounded-xl appearance-none focus:outline-none focus:ring-0 focus:border-amber-500 peer transition-colors"
                     />
-                    <label htmlFor="name" className="absolute text-sm text-gray-400 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 peer-focus:text-amber-500">Your Name</label>
+                    <label htmlFor="name" className="pointer-events-none absolute text-sm text-gray-400 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 peer-focus:text-amber-500">Your Name</label>
                   </div>
                   
                   <div className="relative group">
@@ -159,7 +159,7 @@ export default function ContactForm() {
                       placeholder=" "
                       className="block w-full px-4 pt-6 pb-2 text-white bg-white/5 border border-white/10 rounded-xl appearance-none focus:outline-none focus:ring-0 focus:border-amber-500 peer transition-colors"
                     />
-                    <label htmlFor="email" className="absolute text-sm text-gray-400 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 peer-focus:text-amber-500">Your Email</label>
+                    <label htmlFor="email" className="pointer-events-none absolute text-sm text-gray-400 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 peer-focus:text-amber-500">Your Email</label>
                   </div>
                 </div>
 
@@ -174,7 +174,7 @@ export default function ContactForm() {
                       placeholder=" "
                       className="block w-full px-4 pt-6 pb-2 text-white bg-white/5 border border-white/10 rounded-xl appearance-none focus:outline-none focus:ring-0 focus:border-amber-500 peer transition-colors"
                     />
-                    <label htmlFor="phone" className="absolute text-sm text-gray-400 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 peer-focus:text-amber-500">Your Phone</label>
+                    <label htmlFor="phone" className="pointer-events-none absolute text-sm text-gray-400 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 peer-focus:text-amber-500">Your Phone</label>
                   </div>
                   
                   <div className="relative group">
@@ -204,7 +204,7 @@ export default function ContactForm() {
                     placeholder=" "
                     className="block w-full px-4 pt-6 pb-2 text-white bg-white/5 border border-white/10 rounded-xl appearance-none focus:outline-none focus:ring-0 focus:border-amber-500 peer transition-colors resize-none"
                   ></textarea>
-                  <label htmlFor="message" className="absolute text-sm text-gray-400 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 peer-focus:text-amber-500">Describe your legal query in detail</label>
+                  <label htmlFor="message" className="pointer-events-none absolute text-sm text-gray-400 duration-300 transform -translate-y-3 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-3 peer-focus:text-amber-500">Describe your legal query in detail</label>
                 </div>
 
                 {status === 'error' && (

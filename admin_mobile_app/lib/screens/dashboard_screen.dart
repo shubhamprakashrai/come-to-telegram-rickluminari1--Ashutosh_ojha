@@ -6,7 +6,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'leads_screen.dart';
 import 'admin_management_screen.dart';
+import 'blog_manager_screen.dart';
 import '../services/api_crypto.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -295,19 +297,22 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                         subtitle: 'Create and manage articles',
                         icon: Icons.article_rounded,
                         gradient: [const Color(0xFF6366F1).withOpacity(0.15), const Color(0xFF8B5CF6).withOpacity(0.05)],
-                        iconColor: const Color(0xFF6366F1),
-                        onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Blog Manager coming soon!'), backgroundColor: Color(0xFF1E293B)),
-                        ),
+                        iconColor: const Color(0xFF818CF8),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BlogManagerScreen())),
                       ),
                       const SizedBox(height: 12),
                       _ActionCard(
-                        title: 'Website',
-                        subtitle: 'Open ashutosh-ojha-18afc.web.app',
+                        title: 'Live Website',
+                        subtitle: 'ashutoshojha.com',
                         icon: Icons.language_rounded,
                         gradient: [const Color(0xFF10B981).withOpacity(0.15), const Color(0xFF34D399).withOpacity(0.05)],
                         iconColor: const Color(0xFF10B981),
-                        onTap: () {},
+                        onTap: () async {
+                          final uri = Uri.parse('https://ashutoshojha.com');
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(uri, mode: LaunchMode.externalApplication);
+                          }
+                        },
                       ),
 
                       const SizedBox(height: 32),

@@ -45,3 +45,25 @@ pub struct AddAdminRequest {
 pub struct VerifyAdminRequest {
     pub email: String,
 }
+
+#[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
+pub struct BlogPost {
+    pub id: Uuid,
+    pub title: String,
+    pub slug: String,
+    pub category: String,
+    pub excerpt: String,
+    pub content: String,
+    pub author: String,
+    pub published: bool,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CreateBlogRequest {
+    pub title: String,
+    pub category: String,
+    pub excerpt: String,
+    pub content: String,
+    pub author: Option<String>,
+}
