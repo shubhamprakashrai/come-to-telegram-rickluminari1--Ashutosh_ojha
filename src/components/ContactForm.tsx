@@ -1,6 +1,7 @@
 'use client';
 import { motion } from 'framer-motion';
 import { Phone, Mail, MapPin, Clock, Calendar, Send, CheckCircle2, Loader2 } from 'lucide-react';
+import LinkedInIcon from '@/components/LinkedInIcon';
 import { useState } from 'react';
 
 export default function ContactForm() {
@@ -105,17 +106,19 @@ export default function ContactForm() {
             <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-8 hover:bg-white/10 transition-colors">
               <div className="flex items-start">
                 <div className="w-14 h-14 bg-amber-500/20 rounded-2xl flex items-center justify-center shrink-0 mr-6">
-                  <MapPin className="w-7 h-7 text-amber-500" />
+                  <LinkedInIcon className="w-7 h-7 text-[#0A66C2]" />
                 </div>
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="text-lg font-bold text-white mb-2">Noida Office</h4>
-                    <p className="text-gray-400 text-sm leading-relaxed">Office No. 1610, Tower A, 16th Floor, Spectrum Metro Mall, Phase-1, Sector 75, Noida - 201301.</p>
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-bold text-white mb-2">Kolkata Office</h4>
-                    <p className="text-gray-400 text-sm leading-relaxed">10, Kiran Shankar Roy Road, B.B.D Bagh, Kolkata - 700001.</p>
-                  </div>
+                <div>
+                  <h4 className="text-lg font-bold text-white mb-2">Professional Network</h4>
+                  <p className="text-gray-400 text-sm mb-3">Connect directly on LinkedIn for legal thought leadership and professional updates.</p>
+                  <a
+                    href="https://www.linkedin.com/in/ashutoshojha15/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center text-amber-400 hover:text-amber-300 text-sm font-semibold hover:underline"
+                  >
+                    View LinkedIn Profile &rarr;
+                  </a>
                 </div>
               </div>
             </div>

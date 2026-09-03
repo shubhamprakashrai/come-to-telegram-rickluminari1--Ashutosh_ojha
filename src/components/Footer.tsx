@@ -1,5 +1,6 @@
 'use client';
 import { Scale, Mail, Phone, MapPin, Shield } from 'lucide-react';
+import LinkedInIcon from '@/components/LinkedInIcon';
 
 export default function Footer() {
   const handleOpenDisclaimer = () => {
@@ -20,6 +21,15 @@ export default function Footer() {
             <p className="text-gray-400 text-sm leading-relaxed mb-6">
               Professional legal advisory and litigation representation with integrity, expertise, and commitment. Operating from Noida &amp; Kolkata.
             </p>
+            <a
+              href="https://www.linkedin.com/in/ashutoshojha15/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-amber-500/15 text-gray-300 hover:text-amber-400 border border-white/10 transition-all text-xs font-semibold"
+            >
+              <LinkedInIcon className="w-4 h-4 text-[#0A66C2]" />
+              <span>Connect on LinkedIn</span>
+            </a>
           </div>
           
           <div>
@@ -52,6 +62,17 @@ export default function Footer() {
               <li className="flex items-start">
                 <Mail className="w-4 h-4 text-amber-500 mr-3 mt-0.5" />
                 <span>ashutosh.adv@outlook.com</span>
+              </li>
+              <li className="flex items-start">
+                <LinkedInIcon className="w-4 h-4 text-[#0A66C2] mr-3 mt-0.5" />
+                <a 
+                  href="https://www.linkedin.com/in/ashutoshojha15/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-amber-400 transition-colors"
+                >
+                  linkedin.com/in/ashutoshojha15
+                </a>
               </li>
               <li className="flex items-start">
                 <MapPin className="w-4 h-4 text-amber-500 mr-3 mt-0.5" />

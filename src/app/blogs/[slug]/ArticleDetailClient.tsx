@@ -6,6 +6,7 @@ import {
   ArrowLeft, Calendar, Clock, Share2, Check, Scale, 
   MessageSquare, ChevronRight, ShieldCheck
 } from 'lucide-react';
+import LinkedInIcon from '@/components/LinkedInIcon';
 import Link from 'next/link';
 
 type BlogPost = {
@@ -340,12 +341,23 @@ export default function ArticleDetailClient() {
               </div>
             </div>
 
-            <Link
-              href="/#contact"
-              className="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-amber-600/30 transition-all whitespace-nowrap"
-            >
-              Book Legal Consultation
-            </Link>
+            <div className="flex flex-wrap items-center gap-3">
+              <a
+                href="https://www.linkedin.com/in/ashutoshojha15/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-3 bg-white/5 hover:bg-[#0A66C2]/20 text-gray-300 hover:text-white rounded-xl text-xs font-bold border border-white/10 transition-all flex items-center whitespace-nowrap"
+              >
+                <LinkedInIcon className="w-4 h-4 text-[#0A66C2] mr-2" />
+                Connect on LinkedIn
+              </a>
+              <Link
+                href="/#contact"
+                className="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-amber-600/30 transition-all whitespace-nowrap"
+              >
+                Book Legal Consultation
+              </Link>
+            </div>
           </div>
         </div>
 

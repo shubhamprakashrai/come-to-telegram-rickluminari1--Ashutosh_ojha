@@ -99,6 +99,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       addressCountry: "IN",
     },
     description: "Legal consultancy and advocacy in Commercial Litigation, Arbitration, and High Court Jurisdictions.",
+    sameAs: [
+      "https://www.linkedin.com/in/ashutoshojha15/"
+    ],
   };
 
   return (

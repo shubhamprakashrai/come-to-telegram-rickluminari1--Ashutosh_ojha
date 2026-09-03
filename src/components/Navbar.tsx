@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Scale, Menu, X } from 'lucide-react';
+import LinkedInIcon from '@/components/LinkedInIcon';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -56,6 +57,15 @@ export default function Navbar() {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 transition-all duration-300 group-hover:w-full"></span>
               </a>
             ))}
+            <a
+              href="https://www.linkedin.com/in/ashutoshojha15/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-300 hover:text-amber-400 p-2 rounded-full hover:bg-white/5 transition-colors"
+              title="Connect on LinkedIn"
+            >
+              <LinkedInIcon className="w-5 h-5 text-[#0A66C2] hover:brightness-125" />
+            </a>
             <motion.a 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
