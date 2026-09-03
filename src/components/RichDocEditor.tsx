@@ -6,7 +6,8 @@ import {
   AlignLeft, AlignCenter, AlignRight, AlignJustify, Undo, Redo,
   Highlighter, Sparkles, UploadCloud, Loader2, Minus, Code, Trash2
 } from 'lucide-react';
-import { uploadImageToR2 } from '@/lib/r2Upload';
+import { uploadImageToR2, deleteImageFromR2 } from '@/lib/r2Upload';
+
 
 interface RichDocEditorProps {
   initialHtml?: string;
@@ -176,12 +177,16 @@ export default function RichDocEditor({
               </button>
               <button
                 type="button"
-                onClick={() => onCoverChange('')}
+                onClick={() => {
+                  if (coverImage) deleteImageFromR2(coverImage);
+                  onCoverChange('');
+                }}
                 className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 rounded-xl border border-red-500/30"
-                title="Remove cover"
+                title="Remove and purge cover"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
+
             </div>
           </div>
         ) : (

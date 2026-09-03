@@ -9,6 +9,8 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import RichDocEditor from '@/components/RichDocEditor';
+import { deleteArticleImagesFromR2 } from '@/lib/r2Upload';
+
 
 type AdminUser = {
   id: string;
@@ -246,9 +248,18 @@ export default function AdminDashboard() {
   };
 
   const handleDeleteBlog = async (id: string, title: string) => {
-    if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
+    if (!confirm(`Are you sure you want to delete "${title}"? This will also remove all associated images from Cloudflare R2.`)) return;
+
+    // Find the blog to get its images
+    const blogToDelete = blogs.find(b => b.id === id);
 
     try {
+      // 1. Purge all images from Cloudflare R2 & Storage
+      if (blogToDelete) {
+        await deleteArticleImagesFromR2(blogToDelete);
+      }
+
+      // 2. Delete article from PostgreSQL database
       const res = await fetch(`https://ashutosh-api.toonshala.com/api/blogs/${id}`, {
         method: 'DELETE',
       });
@@ -259,6 +270,7 @@ export default function AdminDashboard() {
       console.error(e);
     }
   };
+
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-950">
