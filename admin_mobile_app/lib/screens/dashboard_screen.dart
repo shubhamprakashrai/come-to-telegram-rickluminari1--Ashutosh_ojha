@@ -56,7 +56,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _signOut() async {
-    await GoogleSignIn.instance.signOut();
+    await GoogleSignIn().signOut();
     await FirebaseAuth.instance.signOut();
   }
 
