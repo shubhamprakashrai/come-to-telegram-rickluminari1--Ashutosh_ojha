@@ -55,6 +55,7 @@ pub struct BlogPost {
     pub excerpt: String,
     pub content: String,
     pub author: String,
+    pub image_url: Option<String>,
     pub published: bool,
     pub created_at: DateTime<Utc>,
 }
@@ -66,4 +67,6 @@ pub struct CreateBlogRequest {
     pub excerpt: String,
     pub content: String,
     pub author: Option<String>,
+    pub image_url: Option<String>,
 }
+

@@ -266,7 +266,7 @@ async fn get_blogs(
     State(state): State<AppState>,
 ) -> Result<Json<Value>, (StatusCode, String)> {
     let rows = sqlx::query_as::<_, BlogPost>(
-        "SELECT id, title, slug, category, excerpt, content, author, published, created_at FROM blogs ORDER BY created_at DESC"
+        "SELECT id, title, slug, category, excerpt, content, author, image_url, published, created_at FROM blogs ORDER BY created_at DESC"
     )
     .fetch_all(&state.db)
     .await;
@@ -297,8 +297,8 @@ async fn create_blog(
 
     let result = sqlx::query(
         r#"
-        INSERT INTO blogs (id, title, slug, category, excerpt, content, author, published, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, true, NOW())
+        INSERT INTO blogs (id, title, slug, category, excerpt, content, author, image_url, published, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true, NOW())
         "#,
     )
     .bind(blog_id)
@@ -308,6 +308,7 @@ async fn create_blog(
     .bind(&payload.excerpt)
     .bind(&payload.content)
     .bind(&author)
+    .bind(&payload.image_url)
     .execute(&state.db)
     .await;
 

@@ -76,9 +76,11 @@ pub async fn init_db() -> Result<PgPool, sqlx::Error> {
             excerpt TEXT NOT NULL,
             content TEXT NOT NULL,
             author VARCHAR(100) NOT NULL DEFAULT 'Ashutosh Ojha',
+            image_url TEXT,
             published BOOLEAN NOT NULL DEFAULT true,
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
+        ALTER TABLE blogs ADD COLUMN IF NOT EXISTS image_url TEXT;
         "#,
     )
     .execute(&pool)

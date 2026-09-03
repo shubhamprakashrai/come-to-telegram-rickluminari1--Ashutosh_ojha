@@ -2,6 +2,7 @@ import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
 import AboutBento from '@/components/AboutBento';
 import PracticeAccordion from '@/components/PracticeAccordion';
+import BlogSection from '@/components/BlogSection';
 import ContactForm from '@/components/ContactForm';
 import Footer from '@/components/Footer';
 import DisclaimerModal from '@/components/DisclaimerModal';
@@ -16,6 +17,7 @@ export default function Home() {
         <HeroSection />
         <AboutBento />
         <PracticeAccordion />
+        <BlogSection />
         <ContactForm />
       </main>
 
