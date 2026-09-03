@@ -39,6 +39,7 @@ async fn main() {
         .route("/api/health", get(health_check))
         .route("/api/contact", post(submit_contact_form))
         .route("/api/leads", get(get_leads))
+        .route("/api/dashboard", get(get_dashboard))
         .route("/api/register-token", post(register_token))
         .layer(cors)
         .with_state(state);
@@ -131,4 +132,29 @@ async fn register_token(
             Err((StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()))
         }
     }
+}
+
+async fn get_dashboard(
+    State(state): State<AppState>,
+) -> Result<Json<Value>, (StatusCode, String)> {
+    let total: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM leads")
+        .fetch_one(&state.db)
+        .await
+        .map_err(|e| { error!("Dashboard query failed: {}", e); (StatusCode::INTERNAL_SERVER_ERROR, "DB error".to_string()) })?;
+
+    let today: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM leads WHERE created_at >= CURRENT_DATE")
+        .fetch_one(&state.db)
+        .await
+        .map_err(|e| { error!("Dashboard query failed: {}", e); (StatusCode::INTERNAL_SERVER_ERROR, "DB error".to_string()) })?;
+
+    let this_week: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM leads WHERE created_at >= CURRENT_DATE - INTERVAL '7 days'")
+        .fetch_one(&state.db)
+        .await
+        .map_err(|e| { error!("Dashboard query failed: {}", e); (StatusCode::INTERNAL_SERVER_ERROR, "DB error".to_string()) })?;
+
+    Ok(Json(json!({
+        "total_leads": total.0,
+        "today_leads": today.0,
+        "week_leads": this_week.0
+    })))
 }

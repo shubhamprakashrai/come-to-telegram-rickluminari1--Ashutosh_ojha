@@ -16,11 +16,31 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   String? _fcmToken;
   static const String _apiBase = 'https://ashutosh-api.toonshala.com';
+  int _totalLeads = 0;
+  int _todayLeads = 0;
+  int _weekLeads = 0;
 
   @override
   void initState() {
     super.initState();
     _initFCM();
+    _fetchDashboard();
+  }
+
+  Future<void> _fetchDashboard() async {
+    try {
+      final resp = await http.get(Uri.parse('$_apiBase/api/dashboard'));
+      if (resp.statusCode == 200) {
+        final data = json.decode(resp.body);
+        setState(() {
+          _totalLeads = data['total_leads'] ?? 0;
+          _todayLeads = data['today_leads'] ?? 0;
+          _weekLeads = data['week_leads'] ?? 0;
+        });
+      }
+    } catch (e) {
+      debugPrint('Failed to fetch dashboard: $e');
+    }
   }
 
   Future<void> _initFCM() async {
@@ -137,9 +157,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Row(
                   children: [
-                    _StatCard(label: 'New Leads', value: '—', icon: Icons.person_add_alt_1),
-                    const SizedBox(width: 16),
-                    _StatCard(label: 'Total Leads', value: '—', icon: Icons.people_alt_rounded),
+                    _StatCard(label: 'Today', value: '$_todayLeads', icon: Icons.person_add_alt_1),
+                    const SizedBox(width: 12),
+                    _StatCard(label: 'This Week', value: '$_weekLeads', icon: Icons.calendar_today_rounded),
+                    const SizedBox(width: 12),
+                    _StatCard(label: 'Total', value: '$_totalLeads', icon: Icons.people_alt_rounded),
                   ],
                 ),
               ),
