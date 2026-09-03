@@ -7,9 +7,11 @@ SSH_KEY = ~/.ssh/toonshala_vps
 SSH_TARGET = root@$(VPS_IP)
 VPS_API_DIR = /opt/ashutosh-law-api-new/backend-api
 
+FIREBASE_ANDROID_APP_ID = 1:344994341820:android:aa13977a364d30f7ec01b9
+
 .PHONY: help all \
         web-dev web-build web-deploy web-clean \
-        mobile-run mobile-build-apk mobile-build-bundle mobile-icons mobile-clean \
+        mobile-run mobile-build-apk mobile-build-bundle mobile-distribute mobile-icons mobile-clean \
         api-dev api-deploy api-logs api-restart api-status \
         deploy-all git-sync
 
@@ -25,6 +27,7 @@ help:
 	@echo "  make mobile-run           - Run mobile app on connected device/emulator"
 	@echo "  make mobile-build-apk     - Build production APK with Obfuscation & Symbol Stripping"
 	@echo "  make mobile-build-bundle  - Build production AAB (App Bundle) with Obfuscation"
+	@echo "  make mobile-distribute    - Build & Distribute APK via Firebase App Tester"
 	@echo "  make mobile-icons         - Re-generate luxury golden app launcher icons"
 	@echo "  make mobile-clean         - Clean Flutter build artifacts"
 	@echo ""
@@ -65,6 +68,13 @@ mobile-build-apk: mobile-icons
 		--split-debug-info=build/app/outputs/symbols \
 		--tree-shake-icons
 	@echo "✅ Single Universal APK generated: admin_mobile_app/build/app/outputs/flutter-apk/app-release.apk"
+
+mobile-distribute: mobile-build-apk
+	@echo "📤 Uploading APK to Firebase App Distribution (App Tester)..."
+	firebase appdistribution:distribute admin_mobile_app/build/app/outputs/flutter-apk/app-release.apk \
+		--app $(FIREBASE_ANDROID_APP_ID) \
+		--release-notes "Ashutosh Law Chambers - Universal Release Build with Push Notifications & Safe Area UI."
+	@echo "✅ App successfully uploaded to Firebase App Tester!"
 
 
 
