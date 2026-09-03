@@ -80,6 +80,14 @@ pub async fn init_db() -> Result<PgPool, sqlx::Error> {
             published BOOLEAN NOT NULL DEFAULT true,
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
+        "#,
+    )
+    .execute(&pool)
+    .await?;
+
+    // Ensure image_url column exists
+    sqlx::query(
+        r#"
         ALTER TABLE blogs ADD COLUMN IF NOT EXISTS image_url TEXT;
         "#,
     )

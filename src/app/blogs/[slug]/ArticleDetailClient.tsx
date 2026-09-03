@@ -103,6 +103,53 @@ export default function ArticleDetailClient() {
     }
   }, [slug]);
 
+  useEffect(() => {
+    if (article && typeof window !== 'undefined') {
+
+      document.title = `${article.title} | Adv. Ashutosh Ojha`;
+      
+      // Update meta description
+      let metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        metaDesc.setAttribute('content', article.excerpt);
+      }
+
+      // Dynamic Schema.org BlogPosting Injection
+      const existingScript = document.getElementById('article-schema-jsonld');
+      if (existingScript) {
+        existingScript.remove();
+      }
+
+      const script = document.createElement('script');
+      script.id = 'article-schema-jsonld';
+      script.type = 'application/ld+json';
+      script.text = JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: article.title,
+        description: article.excerpt,
+        image: article.image_url || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=1200',
+        author: {
+          '@type': 'Person',
+          name: article.author || 'Adv. Ashutosh Ojha',
+          url: 'https://ashutoshojha.com',
+        },
+        publisher: {
+          '@type': 'Organization',
+          name: 'Ashutosh Law Chambers',
+          url: 'https://ashutoshojha.com',
+        },
+        datePublished: article.created_at,
+        dateModified: article.created_at,
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': `https://ashutoshojha.com/blogs/${article.slug}`,
+        },
+      });
+      document.head.appendChild(script);
+    }
+  }, [article]);
+
   const handleShare = () => {
     if (typeof window !== 'undefined') {
       navigator.clipboard.writeText(window.location.href);
