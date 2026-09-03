@@ -64,6 +64,11 @@ class AdminApp extends StatelessWidget {
   }
 }
 
+// Allowed admin emails
+const List<String> _adminEmails = [
+  'ashishraimsd@gmail.com',
+];
+
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
 
@@ -78,7 +83,31 @@ class AuthGate extends StatelessWidget {
           );
         }
         if (snapshot.hasData) {
-          return const DashboardScreen();
+          final email = snapshot.data?.email ?? '';
+          if (_adminEmails.contains(email)) {
+            return const DashboardScreen();
+          }
+          // Not authorized — sign out and show access denied
+          FirebaseAuth.instance.signOut();
+          return Scaffold(
+            backgroundColor: const Color(0xFF0F172A),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.block_rounded, size: 64, color: Colors.redAccent),
+                  const SizedBox(height: 20),
+                  const Text('Access Denied', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Text(
+                    '$email\nis not an authorized admin.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white.withOpacity(0.5)),
+                  ),
+                ],
+              ),
+            ),
+          );
         }
         return const LoginScreen();
       },
