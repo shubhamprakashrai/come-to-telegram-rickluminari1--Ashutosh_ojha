@@ -3,6 +3,12 @@
     "public": "out",
     "cleanUrls": true,
     "trailingSlash": false,
+    "rewrites": [
+      {
+        "source": "/blogs/**",
+        "destination": "/blogs/navigating-commercial-arbitration.html"
+      }
+    ],
     "ignore": [
       "firebase.json",
       "**/.*",

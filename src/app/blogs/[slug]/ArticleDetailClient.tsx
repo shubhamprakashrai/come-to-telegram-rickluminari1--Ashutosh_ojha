@@ -69,12 +69,25 @@ const FALLBACK_BLOGS: BlogPost[] = [
 
 export default function ArticleDetailClient() {
   const params = useParams();
-  const slug = params?.slug as string;
+  const rawParamSlug = params?.slug as string;
+  const [currentSlug, setCurrentSlug] = useState<string>(rawParamSlug || '');
 
   const [article, setArticle] = useState<BlogPost | null>(null);
   const [allBlogs, setAllBlogs] = useState<BlogPost[]>(FALLBACK_BLOGS);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const pathParts = window.location.pathname.split('/').filter(Boolean);
+      const lastPart = pathParts[pathParts.length - 1];
+      if (lastPart && lastPart !== 'blogs') {
+        setCurrentSlug(lastPart);
+      } else if (rawParamSlug) {
+        setCurrentSlug(rawParamSlug);
+      }
+    }
+  }, [rawParamSlug]);
 
   useEffect(() => {
     async function loadArticle() {
@@ -84,7 +97,8 @@ export default function ArticleDetailClient() {
         setAllBlogs(list);
 
         // Find article by slug or id
-        const found = list.find(b => b.slug === slug || b.id === slug);
+        const targetSlug = currentSlug || rawParamSlug;
+        const found = list.find(b => b.slug === targetSlug || b.id === targetSlug);
         if (found) {
           setArticle(found);
         } else if (list.length > 0) {
@@ -92,16 +106,18 @@ export default function ArticleDetailClient() {
         }
       } catch (err) {
         console.error(err);
-        const found = FALLBACK_BLOGS.find(b => b.slug === slug || b.id === slug);
+        const targetSlug = currentSlug || rawParamSlug;
+        const found = FALLBACK_BLOGS.find(b => b.slug === targetSlug || b.id === targetSlug);
         setArticle(found || FALLBACK_BLOGS[0]);
       } finally {
         setLoading(false);
       }
     }
-    if (slug) {
+    if (currentSlug || rawParamSlug) {
       loadArticle();
     }
-  }, [slug]);
+  }, [currentSlug, rawParamSlug]);
+
 
   useEffect(() => {
     if (article && typeof window !== 'undefined') {
