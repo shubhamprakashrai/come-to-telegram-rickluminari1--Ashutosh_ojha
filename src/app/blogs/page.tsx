@@ -139,6 +139,17 @@ export default function BlogsPage() {
   };
 
   const renderContentFormatted = (content: string) => {
+    // Check if content is HTML from the visual editor
+    const isHtml = /<[a-z][\s\S]*>/i.test(content);
+    if (isHtml) {
+      return (
+        <div 
+          className="text-gray-200 text-sm sm:text-base leading-relaxed space-y-4 [&_h1]:text-3xl [&_h1]:font-extrabold [&_h1]:text-white [&_h1]:my-4 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white [&_h2]:my-3 [&_h2]:border-b [&_h2]:border-white/10 [&_h2]:pb-2 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:text-amber-400 [&_h3]:my-2 [&_blockquote]:border-l-4 [&_blockquote]:border-amber-500 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:italic [&_blockquote]:bg-amber-500/10 [&_blockquote]:rounded-r-xl [&_blockquote]:my-4 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_a]:text-amber-400 [&_a]:underline [&_figure]:my-6 [&_img]:rounded-2xl [&_img]:border [&_img]:border-white/10 [&_img]:shadow-xl [&_hr]:border-white/10 [&_hr]:my-6"
+          dangerouslySetInnerHTML={{ __html: content }} 
+        />
+      );
+    }
+
     const lines = content.split('\n');
     return (
       <div className="space-y-4 text-gray-200 text-sm sm:text-base leading-relaxed">

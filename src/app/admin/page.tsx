@@ -3,12 +3,11 @@ import { useAuth } from '@/components/AuthProvider';
 import { fetchEncryptedJson, decryptEnvelope } from '@/lib/apiCrypto';
 import { 
   LogOut, PenTool, LayoutDashboard, Users, Plus, Trash2, Shield, ShieldCheck, 
-  FileText, X, CheckCircle2, AlertCircle, ExternalLink, Image as ImageIcon,
-  Bold, Italic, Heading2, Heading3, List, ListOrdered, Quote, Link as LinkIcon,
-  Eye, Edit3, Sparkles
+  FileText, X, CheckCircle2, AlertCircle, ExternalLink, Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import RichDocEditor from '@/components/RichDocEditor';
 
 type AdminUser = {
   id: string;
@@ -52,12 +51,9 @@ export default function AdminDashboard() {
   const [postCategory, setPostCategory] = useState('Legal Insights');
   const [postExcerpt, setPostExcerpt] = useState('');
   const [postImageUrl, setPostImageUrl] = useState('');
-  const [postContent, setPostContent] = useState('');
-  const [editorMode, setEditorMode] = useState<'write' | 'preview'>('write');
+  const [postContentHtml, setPostContentHtml] = useState('');
   const [submittingPost, setSubmittingPost] = useState(false);
   const [postMsg, setPostMsg] = useState<{ text: string; error?: boolean } | null>(null);
-
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const fetchAdmins = useCallback(async () => {
     setLoadingAdmins(true);
@@ -90,40 +86,6 @@ export default function AdminDashboard() {
       fetchBlogs();
     }
   }, [activeTab, fetchAdmins, fetchBlogs]);
-
-  // Editor formatting helper
-  const insertFormatting = (prefix: string, suffix: string = '', defaultText: string = '') => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selected = postContent.substring(start, end) || defaultText;
-    const replacement = `${prefix}${selected}${suffix}`;
-
-    const newContent = postContent.substring(0, start) + replacement + postContent.substring(end);
-    setPostContent(newContent);
-
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(start + prefix.length, start + prefix.length + selected.length);
-    }, 50);
-  };
-
-  const handleInsertImage = () => {
-    const url = prompt('Enter Image URL (e.g. https://images.unsplash.com/...):');
-    if (url) {
-      const caption = prompt('Enter Image Caption / Alt text (optional):') || 'Image';
-      insertFormatting(`\n\n![${caption}](${url})\n*${caption}*\n\n`);
-    }
-  };
-
-  const handleInsertLink = () => {
-    const url = prompt('Enter Destination URL (https://...):');
-    if (url) {
-      insertFormatting('[', `](${url})`, 'Link Text');
-    }
-  };
 
   const handleAddAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,7 +132,10 @@ export default function AdminDashboard() {
 
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!postTitle.trim() || !postContent.trim()) return;
+    if (!postTitle.trim() || !postContentHtml.trim()) {
+      alert('Please fill article title and write some content');
+      return;
+    }
     setSubmittingPost(true);
     setPostMsg(null);
 
@@ -182,7 +147,7 @@ export default function AdminDashboard() {
           title: postTitle.trim(),
           category: postCategory,
           excerpt: postExcerpt.trim() || postTitle.trim(),
-          content: postContent.trim(),
+          content: postContentHtml.trim(),
           image_url: postImageUrl.trim() || undefined,
           author: 'Adv. Ashutosh Ojha',
         }),
@@ -190,11 +155,11 @@ export default function AdminDashboard() {
 
       if (res.ok) {
         await decryptEnvelope(await res.json());
-        setPostMsg({ text: 'Article published successfully!' });
+        setPostMsg({ text: 'Article published successfully to live website!' });
         setPostTitle('');
         setPostExcerpt('');
         setPostImageUrl('');
-        setPostContent('');
+        setPostContentHtml('');
         setTimeout(() => {
           setShowPostModal(false);
           setPostMsg(null);
@@ -223,54 +188,6 @@ export default function AdminDashboard() {
     } catch (e) {
       console.error(e);
     }
-  };
-
-  // Simple visual markdown renderer for preview tab
-  const renderFormattedPreview = (content: string) => {
-    const lines = content.split('\n');
-    return (
-      <div className="space-y-4 text-gray-200 text-sm leading-relaxed">
-        {lines.map((line, i) => {
-          if (line.startsWith('### ')) {
-            return <h3 key={i} className="text-lg font-bold text-amber-400 mt-6 mb-2">{line.replace('### ', '')}</h3>;
-          }
-          if (line.startsWith('## ')) {
-            return <h2 key={i} className="text-xl font-bold text-white mt-6 mb-3 border-b border-white/10 pb-2">{line.replace('## ', '')}</h2>;
-          }
-          if (line.startsWith('# ')) {
-            return <h1 key={i} className="text-2xl font-bold text-white mt-6 mb-3">{line.replace('# ', '')}</h1>;
-          }
-          if (line.startsWith('> ')) {
-            return (
-              <blockquote key={i} className="border-l-4 border-amber-500 pl-4 py-1 italic text-amber-200/90 bg-amber-500/5 rounded-r-lg my-3">
-                {line.replace('> ', '')}
-              </blockquote>
-            );
-          }
-          if (line.startsWith('- ') || line.startsWith('* ')) {
-            return (
-              <li key={i} className="ml-5 list-disc text-gray-300">
-                {line.replace(/^[-*]\s+/, '')}
-              </li>
-            );
-          }
-          // Check for image syntax: ![alt](url)
-          const imgMatch = line.match(/!\[(.*?)\]\((.*?)\)/);
-          if (imgMatch) {
-            return (
-              <div key={i} className="my-6 rounded-2xl overflow-hidden border border-white/10 shadow-xl bg-slate-950">
-                <img src={imgMatch[2]} alt={imgMatch[1]} className="w-full max-h-96 object-cover" />
-                {imgMatch[1] && <p className="p-2 text-center text-xs text-gray-400 italic bg-slate-900/60">{imgMatch[1]}</p>}
-              </div>
-            );
-          }
-          if (!line.trim()) {
-            return <div key={i} className="h-2" />;
-          }
-          return <p key={i}>{line}</p>;
-        })}
-      </div>
-    );
   };
 
   return (
@@ -340,7 +257,7 @@ export default function AdminDashboard() {
             <div className="flex justify-between items-center">
               <div>
                 <h1 className="text-3xl font-bold text-white">Welcome, {user?.displayName?.split(' ')[0]}</h1>
-                <p className="text-gray-400 text-sm mt-1">Publish &amp; manage legal articles on your portal</p>
+                <p className="text-gray-400 text-sm mt-1">Publish &amp; manage legal articles with Google Docs style editor</p>
               </div>
               <div className="flex items-center space-x-3">
                 <a
@@ -368,9 +285,9 @@ export default function AdminDashboard() {
                 <p className="text-3xl font-bold text-white">{blogs.length}</p>
               </div>
               <div className="bg-slate-900 border border-white/5 p-6 rounded-2xl">
-                <h3 className="text-gray-400 text-sm font-medium mb-2">Categories Active</h3>
-                <p className="text-3xl font-bold text-amber-400">
-                  {new Set(blogs.map(b => b.category)).size}
+                <h3 className="text-gray-400 text-sm font-medium mb-2">Cloudflare R2 Storage</h3>
+                <p className="text-lg font-bold text-emerald-400 mt-1 flex items-center">
+                  <Sparkles className="w-5 h-5 mr-1" /> Active &amp; Connected
                 </p>
               </div>
               <div className="bg-slate-900 border border-white/5 p-6 rounded-2xl">
@@ -564,268 +481,91 @@ export default function AdminDashboard() {
         )}
       </main>
 
-      {/* Rich Editor Post Modal */}
+      {/* Google Docs Style Post Publishing Modal */}
       <AnimatePresence>
         {showPostModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-6 bg-black/80 backdrop-blur-md">
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-slate-900 border border-white/10 rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl relative overflow-hidden"
+              exit={{ opacity: 0, scale: 0.96 }}
+              className="bg-slate-900 border border-white/10 rounded-3xl w-full max-w-5xl max-h-[95vh] flex flex-col shadow-2xl relative overflow-hidden"
             >
               {/* Header */}
-              <div className="p-6 border-b border-white/10 flex items-center justify-between bg-slate-950/60">
+              <div className="p-6 border-b border-white/10 flex items-center justify-between bg-slate-950/70">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-400 border border-amber-500/25">
                     <Sparkles className="w-5 h-5" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-white">Publish Legal Article &amp; Insights</h2>
-                    <p className="text-xs text-gray-400">Rich Markdown &amp; Image Editor with real-time preview</p>
+                    <h2 className="text-xl font-bold text-white">Google Docs Style Article Publisher</h2>
+                    <p className="text-xs text-gray-400">Direct drag &amp; drop / paste images uploaded to Cloudflare R2</p>
                   </div>
                 </div>
 
-                {/* Editor Tabs (Write / Preview) */}
-                <div className="flex items-center space-x-2">
-                  <div className="flex bg-slate-950 p-1 rounded-xl border border-white/10">
-                    <button
-                      type="button"
-                      onClick={() => setEditorMode('write')}
-                      className={`flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                        editorMode === 'write' ? 'bg-amber-600 text-white' : 'text-gray-400 hover:text-white'
-                      }`}
-                    >
-                      <Edit3 className="w-3.5 h-3.5 mr-1.5" />
-                      Write
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setEditorMode('preview')}
-                      className={`flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                        editorMode === 'preview' ? 'bg-amber-600 text-white' : 'text-gray-400 hover:text-white'
-                      }`}
-                    >
-                      <Eye className="w-3.5 h-3.5 mr-1.5" />
-                      Live Preview
-                    </button>
-                  </div>
-
-                  <button 
-                    onClick={() => setShowPostModal(false)}
-                    className="text-gray-400 hover:text-white p-2 rounded-full hover:bg-white/5 transition-colors ml-2"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
+                <button 
+                  onClick={() => setShowPostModal(false)}
+                  className="text-gray-400 hover:text-white p-2 rounded-full hover:bg-white/5 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
-              {/* Body */}
+              {/* Editor Form Body */}
               <form onSubmit={handleCreatePost} className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6">
-                {editorMode === 'write' ? (
-                  <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-semibold text-gray-400 mb-2">ARTICLE TITLE *</label>
-                        <input 
-                          type="text" 
-                          required
-                          placeholder="e.g. Navigating Commercial Arbitration in India"
-                          value={postTitle}
-                          onChange={(e) => setPostTitle(e.target.value)}
-                          className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-semibold text-gray-400 mb-2">PRACTICE CATEGORY *</label>
-                        <select 
-                          value={postCategory}
-                          onChange={(e) => setPostCategory(e.target.value)}
-                          className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-500"
-                        >
-                          <option value="Legal Insights">Legal Insights</option>
-                          <option value="Corporate Law">Corporate Law</option>
-                          <option value="Civil Disputes">Civil Disputes</option>
-                          <option value="High Court Updates">High Court Updates</option>
-                          <option value="Constitutional Law">Constitutional Law</option>
-                          <option value="Arbitration & ADR">Arbitration & ADR</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    {/* Featured Cover Image URL */}
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-400 mb-2">
-                        FEATURED COVER IMAGE URL (OPTIONAL)
-                      </label>
-                      <div className="flex space-x-3">
-                        <div className="relative flex-1">
-                          <ImageIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                          <input 
-                            type="url" 
-                            placeholder="https://images.unsplash.com/photo-... or any image link"
-                            value={postImageUrl}
-                            onChange={(e) => setPostImageUrl(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 bg-slate-950 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-amber-500"
-                          />
-                        </div>
-                      </div>
-                      {postImageUrl && (
-                        <div className="mt-3 relative w-full h-36 rounded-2xl overflow-hidden border border-white/10 bg-slate-950">
-                          <img src={postImageUrl} alt="Cover Preview" className="w-full h-full object-cover" onError={() => {}} />
-                          <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-black/70 text-[10px] text-amber-300 font-mono">
-                            Cover Preview
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Excerpt */}
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-400 mb-2">
-                        CARD SUMMARY / EXCERPT
-                      </label>
-                      <textarea 
-                        rows={2}
-                        placeholder="A brief 1-2 sentence teaser shown on cards..."
-                        value={postExcerpt}
-                        onChange={(e) => setPostExcerpt(e.target.value)}
-                        className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-500 resize-none"
-                      />
-                    </div>
-
-                    {/* Markdown Formatting Toolbar */}
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <label className="text-xs font-semibold text-gray-400">ARTICLE BODY (MARKDOWN &amp; FORMATTING) *</label>
-                        <span className="text-[11px] text-amber-400/80 font-mono">Use toolbar for quick styling</span>
-                      </div>
-
-                      {/* Toolbar buttons */}
-                      <div className="flex flex-wrap gap-1 p-2 bg-slate-950 border border-white/10 border-b-0 rounded-t-xl text-gray-300">
-                        <button
-                          type="button"
-                          onClick={() => insertFormatting('## ', '', 'Section Heading')}
-                          className="p-1.5 hover:bg-white/10 hover:text-white rounded-lg transition-colors"
-                          title="Heading 2"
-                        >
-                          <Heading2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => insertFormatting('### ', '', 'Subsection Heading')}
-                          className="p-1.5 hover:bg-white/10 hover:text-white rounded-lg transition-colors"
-                          title="Heading 3"
-                        >
-                          <Heading3 className="w-4 h-4" />
-                        </button>
-                        <div className="w-px h-5 bg-white/10 my-auto mx-1" />
-                        <button
-                          type="button"
-                          onClick={() => insertFormatting('**', '**', 'bold text')}
-                          className="p-1.5 hover:bg-white/10 hover:text-white rounded-lg transition-colors"
-                          title="Bold"
-                        >
-                          <Bold className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => insertFormatting('*', '*', 'italic text')}
-                          className="p-1.5 hover:bg-white/10 hover:text-white rounded-lg transition-colors"
-                          title="Italic"
-                        >
-                          <Italic className="w-4 h-4" />
-                        </button>
-                        <div className="w-px h-5 bg-white/10 my-auto mx-1" />
-                        <button
-                          type="button"
-                          onClick={() => insertFormatting('- ', '', 'Bullet point')}
-                          className="p-1.5 hover:bg-white/10 hover:text-white rounded-lg transition-colors"
-                          title="Bullet List"
-                        >
-                          <List className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => insertFormatting('1. ', '', 'Numbered point')}
-                          className="p-1.5 hover:bg-white/10 hover:text-white rounded-lg transition-colors"
-                          title="Numbered List"
-                        >
-                          <ListOrdered className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => insertFormatting('> ', '', 'Important legal quote or note')}
-                          className="p-1.5 hover:bg-white/10 hover:text-white rounded-lg transition-colors"
-                          title="Quote Block"
-                        >
-                          <Quote className="w-4 h-4" />
-                        </button>
-                        <div className="w-px h-5 bg-white/10 my-auto mx-1" />
-                        <button
-                          type="button"
-                          onClick={handleInsertImage}
-                          className="flex items-center px-2 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 rounded-lg text-xs font-medium transition-colors"
-                          title="Insert Image"
-                        >
-                          <ImageIcon className="w-3.5 h-3.5 mr-1" />
-                          Add Image
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleInsertLink}
-                          className="p-1.5 hover:bg-white/10 hover:text-white rounded-lg transition-colors"
-                          title="Insert Link"
-                        >
-                          <LinkIcon className="w-4 h-4" />
-                        </button>
-                      </div>
-
-                      <textarea 
-                        ref={textareaRef}
-                        rows={10}
-                        required
-                        placeholder="Write your legal commentary here... You can use headings (##), bullet points (-), images, and blockquotes (>)."
-                        value={postContent}
-                        onChange={(e) => setPostContent(e.target.value)}
-                        className="w-full bg-slate-950 border border-white/10 rounded-b-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-500 font-mono text-[13px] leading-relaxed"
-                      />
-                    </div>
-                  </>
-                ) : (
-                  /* Live Preview Tab */
-                  <div className="space-y-6 bg-slate-950 p-6 sm:p-8 rounded-2xl border border-white/10 min-h-[400px]">
-                    <div className="flex items-center space-x-3 text-xs">
-                      <span className="px-3 py-1 rounded-lg bg-amber-500/15 text-amber-400 font-semibold border border-amber-500/20">
-                        {postCategory}
-                      </span>
-                      <span className="text-gray-400">By Adv. Ashutosh Ojha</span>
-                    </div>
-
-                    <h1 className="text-3xl font-extrabold text-white leading-tight">
-                      {postTitle || 'Untitled Article Title'}
-                    </h1>
-
-                    {postImageUrl && (
-                      <div className="rounded-2xl overflow-hidden border border-white/10 max-h-72">
-                        <img src={postImageUrl} alt="Cover" className="w-full h-full object-cover" />
-                      </div>
-                    )}
-
-                    {postExcerpt && (
-                      <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/15 text-amber-200/90 text-sm italic">
-                        {postExcerpt}
-                      </div>
-                    )}
-
-                    {postContent ? (
-                      renderFormattedPreview(postContent)
-                    ) : (
-                      <p className="text-gray-500 text-sm italic">No article content written yet. Switch to &quot;Write&quot; tab to type.</p>
-                    )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 mb-2">ARTICLE TITLE *</label>
+                    <input 
+                      type="text" 
+                      required
+                      placeholder="e.g. Navigating Commercial Arbitration in India"
+                      value={postTitle}
+                      onChange={(e) => setPostTitle(e.target.value)}
+                      className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-500"
+                    />
                   </div>
-                )}
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-400 mb-2">PRACTICE CATEGORY *</label>
+                    <select 
+                      value={postCategory}
+                      onChange={(e) => setPostCategory(e.target.value)}
+                      className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-500"
+                    >
+                      <option value="Legal Insights">Legal Insights</option>
+                      <option value="Corporate Law">Corporate Law</option>
+                      <option value="Civil Disputes">Civil Disputes</option>
+                      <option value="High Court Updates">High Court Updates</option>
+                      <option value="Constitutional Law">Constitutional Law</option>
+                      <option value="Arbitration & ADR">Arbitration & ADR</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 mb-2">CARD PREVIEW SUMMARY / EXCERPT</label>
+                  <textarea 
+                    rows={2}
+                    placeholder="Short 1-2 sentence overview for the card summary..."
+                    value={postExcerpt}
+                    onChange={(e) => setPostExcerpt(e.target.value)}
+                    className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-500 resize-none"
+                  />
+                </div>
+
+                {/* Google Docs Style WYSIWYG Editor */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 mb-2">
+                    DOCUMENT BODY &amp; MEDIA (WYSIWYG CANVAS)
+                  </label>
+                  <RichDocEditor
+                    initialHtml={postContentHtml}
+                    onChange={setPostContentHtml}
+                    coverImage={postImageUrl}
+                    onCoverChange={setPostImageUrl}
+                  />
+                </div>
 
                 {postMsg && (
                   <div className={`p-4 rounded-xl flex items-center text-sm ${
@@ -836,27 +576,21 @@ export default function AdminDashboard() {
                   </div>
                 )}
 
-                <div className="flex justify-between items-center pt-4 border-t border-white/5">
-                  <div className="text-xs text-gray-500 font-mono">
-                    {postContent.trim().split(/\s+/).filter(Boolean).length} words
-                  </div>
-
-                  <div className="flex space-x-3">
-                    <button 
-                      type="button" 
-                      onClick={() => setShowPostModal(false)}
-                      className="px-5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 text-sm font-medium transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button 
-                      type="submit"
-                      disabled={submittingPost}
-                      className="px-7 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-sm font-bold shadow-lg hover:shadow-amber-500/20 transition-all disabled:opacity-50 flex items-center"
-                    >
-                      {submittingPost ? 'Publishing...' : 'Publish Article'}
-                    </button>
-                  </div>
+                <div className="flex justify-end space-x-3 pt-4 border-t border-white/5">
+                  <button 
+                    type="button" 
+                    onClick={() => setShowPostModal(false)}
+                    className="px-5 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 text-sm font-medium transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit"
+                    disabled={submittingPost}
+                    className="px-8 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-sm font-bold shadow-lg hover:shadow-amber-500/20 transition-all disabled:opacity-50 flex items-center"
+                  >
+                    {submittingPost ? 'Publishing...' : 'Publish to Live Site'}
+                  </button>
                 </div>
               </form>
             </motion.div>
