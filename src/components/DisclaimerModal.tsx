@@ -2,17 +2,23 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Scale, CheckCircle, X } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 export default function DisclaimerModal() {
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [isManuallyOpened, setIsManuallyOpened] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
-    const hasAccepted = localStorage.getItem('disclaimerAccepted');
-    if (!hasAccepted) {
-      setShowDisclaimer(true);
-      document.body.style.overflow = 'hidden';
+    // Exclude admin pages
+    if (pathname && pathname.startsWith('/admin')) {
+      setShowDisclaimer(false);
+      return;
     }
+
+    // Show on every page load
+    setShowDisclaimer(true);
+    document.body.style.overflow = 'hidden';
 
     const handleOpen = () => {
       setIsManuallyOpened(true);
@@ -22,10 +28,9 @@ export default function DisclaimerModal() {
 
     window.addEventListener('openDisclaimer', handleOpen);
     return () => window.removeEventListener('openDisclaimer', handleOpen);
-  }, []);
+  }, [pathname]);
 
   const handleAcceptDisclaimer = () => {
-    localStorage.setItem('disclaimerAccepted', 'true');
     setShowDisclaimer(false);
     setIsManuallyOpened(false);
     document.body.style.overflow = 'auto';
@@ -44,7 +49,7 @@ export default function DisclaimerModal() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
         >
           <motion.div 
             initial={{ scale: 0.9, y: 20, opacity: 0 }}
