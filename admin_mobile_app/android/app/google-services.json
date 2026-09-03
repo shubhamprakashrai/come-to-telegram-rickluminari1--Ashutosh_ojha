@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "344994341820",
+    "project_id": "ashutosh-ojha-18afc",
+    "storage_bucket": "ashutosh-ojha-18afc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:344994341820:android:aa13977a364d30f7ec01b9",
+        "android_client_info": {
+          "package_name": "com.ashutoshlaw.admin_mobile_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvsRU30cGVyu44C4Bp7TSqsGdV5F4RYI8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
