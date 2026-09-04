@@ -68,13 +68,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export function generateStaticParams() {
-  return [
-    { slug: 'navigating-commercial-arbitration' },
-    { slug: 'corporate-governance-director-liability' },
-    { slug: 'high-court-writ-jurisdictions' },
-    { slug: 'contractual-indemnity-clauses' },
-  ];
+import { fetchEncryptedJson } from '@/lib/apiCrypto';
+
+export async function generateStaticParams() {
+  try {
+    const blogs = await fetchEncryptedJson<{ slug: string }[]>('https://ashutosh-api.toonshala.com/api/blogs');
+    if (Array.isArray(blogs) && blogs.length > 0) {
+      return blogs.map((b) => ({ slug: b.slug }));
+    }
+  } catch (err) {
+    console.warn('generateStaticParams: no blogs fetched from API', err);
+  }
+  return [{ slug: 'view' }];
 }
 
 export default function ArticleDetailPage() {

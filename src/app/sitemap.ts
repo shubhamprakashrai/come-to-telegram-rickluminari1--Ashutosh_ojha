@@ -9,19 +9,13 @@ interface BlogPostItem {
   slug: string;
   category: string;
   created_at: string;
+  published?: boolean;
 }
-
-const DEFAULT_SLUGS = [
-  'navigating-commercial-arbitration',
-  'corporate-governance-director-liability',
-  'high-court-writ-jurisdictions',
-  'contractual-indemnity-clauses',
-];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://ashutoshojha.com';
   
-  // Base static routes
+  // Base static routes that always exist
   const routes: MetadataRoute.Sitemap = [
     {
       url: `${baseUrl}`,
@@ -37,27 +31,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  const addedSlugs = new Set<string>();
-
-  // Add default core publication routes
-  DEFAULT_SLUGS.forEach((slug) => {
-    addedSlugs.add(slug);
-    routes.push({
-      url: `${baseUrl}/blogs/${slug}`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    });
-  });
-
-  // Fetch all dynamically published blogs from backend database
+  // Fetch only REAL published blogs from live database
   try {
     const blogs = await fetchEncryptedJson<BlogPostItem[]>('https://ashutosh-api.toonshala.com/api/blogs');
     
-    if (Array.isArray(blogs)) {
+    if (Array.isArray(blogs) && blogs.length > 0) {
       blogs.forEach((b) => {
-        if (b.slug && !addedSlugs.has(b.slug)) {
-          addedSlugs.add(b.slug);
+        if (b.slug && (b.published !== false)) {
           routes.push({
             url: `${baseUrl}/blogs/${b.slug}`,
             lastModified: b.created_at ? new Date(b.created_at) : new Date(),
@@ -68,7 +48,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       });
     }
   } catch (err) {
-    console.error('Error fetching blogs for sitemap generation:', err);
+    console.error('Error fetching dynamic blogs for sitemap:', err);
   }
 
   return routes;

@@ -6,7 +6,7 @@
     "rewrites": [
       {
         "source": "/blogs/**",
-        "destination": "/blogs/navigating-commercial-arbitration.html"
+        "destination": "/blogs/view.html"
       }
     ],
     "ignore": [
