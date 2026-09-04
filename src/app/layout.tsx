@@ -81,6 +81,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://ashutoshojha.com",
   },
+  verification: {
+    google: "dm_9Ea_GV0z2aScPsnNIS4JD-jvpq0nd372f2dbYk6A",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
