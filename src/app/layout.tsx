@@ -25,7 +25,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://ashutoshojha.com"),
   title: {
-    default: "Advocate Ashutosh Ojha | High Court Legal Counsel & Consultant",
+    default: "Advocate Ashutosh Ojha | High Court Legal Counsel and Consultant",
     template: "%s | Adv. Ashutosh Ojha",
   },
   description:
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     locale: "en_IN",
     url: "https://ashutoshojha.com",
     siteName: "Advocate Ashutosh Ojha",
-    title: "Advocate Ashutosh Ojha | Legal Counsel & Consultant",
+    title: "Advocate Ashutosh Ojha | High Court Legal Counsel and Consultant",
     description:
       "Expert legal advisory, commercial litigation, arbitration, and High Court representation by Advocate Ashutosh Ojha.",
     images: [
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Advocate Ashutosh Ojha | Legal Counsel & Consultant",
+    title: "Advocate Ashutosh Ojha | High Court Legal Counsel and Consultant",
     description:
       "Expert legal advisory, commercial litigation, arbitration, and High Court representation by Advocate Ashutosh Ojha.",
     images: ["https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=1200"],

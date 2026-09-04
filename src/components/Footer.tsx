@@ -19,7 +19,7 @@ export default function Footer() {
               <span className="text-xl font-bold text-white tracking-wide">Advocate Ashutosh Ojha</span>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed mb-6">
-              Professional legal advisory and litigation representation with integrity, expertise, and commitment. Operating from Noida &amp; Kolkata.
+              Professional legal advisory and litigation representation with integrity, expertise, and commitment. Operating from Noida & Kolkata.
             </p>
             <a
               href="https://www.linkedin.com/in/ashutoshojha15/"
@@ -76,7 +76,7 @@ export default function Footer() {
               </li>
               <li className="flex items-start">
                 <MapPin className="w-4 h-4 text-amber-500 mr-3 mt-0.5" />
-                <span>Noida &amp; Kolkata</span>
+                <span>Noida & Kolkata</span>
               </li>
             </ul>
           </div>

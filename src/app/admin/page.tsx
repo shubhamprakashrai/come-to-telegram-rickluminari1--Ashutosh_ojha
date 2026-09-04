@@ -330,7 +330,7 @@ export default function AdminDashboard() {
             }`}
           >
             <PenTool className="w-5 h-5 mr-3" />
-            Overview &amp; Posts
+            Overview & Posts
           </button>
 
           <button 
@@ -387,7 +387,7 @@ export default function AdminDashboard() {
             <div className="flex justify-between items-center">
               <div>
                 <h1 className="text-3xl font-bold text-white">Welcome, {user?.displayName?.split(' ')[0]}</h1>
-                <p className="text-gray-400 text-sm mt-1">Publish &amp; manage legal articles with Google Docs style editor</p>
+                <p className="text-gray-400 text-sm mt-1">Publish & manage legal articles with Google Docs style editor</p>
               </div>
               <div className="flex items-center space-x-3">
                 <a
@@ -429,7 +429,7 @@ export default function AdminDashboard() {
               <div className="bg-slate-900 border border-white/5 p-6 rounded-2xl">
                 <h3 className="text-gray-400 text-sm font-medium mb-2">Cloudflare R2 Storage</h3>
                 <p className="text-lg font-bold text-emerald-400 mt-1 flex items-center">
-                  <Sparkles className="w-5 h-5 mr-1" /> Active &amp; Connected
+                  <Sparkles className="w-5 h-5 mr-1" /> Active & Connected
                 </p>
               </div>
             </div>
@@ -551,7 +551,7 @@ export default function AdminDashboard() {
                 <input 
                   type="text" 
                   required
-                  placeholder="e.g. Cyber Law &amp; Data Privacy, Real Estate &amp; RERA, Maritime Law..." 
+                  placeholder="e.g. Cyber Law & Data Privacy, Real Estate & RERA, Maritime Law..." 
                   value={newCategoryInput}
                   onChange={(e) => setNewCategoryInput(e.target.value)}
                   className="flex-1 bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-amber-500"
@@ -807,7 +807,7 @@ export default function AdminDashboard() {
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-white">Google Docs Style Article Publisher</h2>
-                    <p className="text-xs text-gray-400">Direct drag &amp; drop / paste images uploaded to Cloudflare R2</p>
+                    <p className="text-xs text-gray-400">Direct drag & drop / paste images uploaded to Cloudflare R2</p>
                   </div>
                 </div>
 
@@ -888,7 +888,7 @@ export default function AdminDashboard() {
                 {/* Google Docs Style WYSIWYG Editor */}
                 <div>
                   <label className="block text-xs font-semibold text-gray-400 mb-2">
-                    DOCUMENT BODY &amp; MEDIA (WYSIWYG CANVAS)
+                    DOCUMENT BODY & MEDIA (WYSIWYG CANVAS)
                   </label>
                   <RichDocEditor
                     initialHtml={postContentHtml}

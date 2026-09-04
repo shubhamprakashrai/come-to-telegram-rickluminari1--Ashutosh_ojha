@@ -182,7 +182,7 @@ export default function BlogsPage() {
           </div>
 
           <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
-            Legal Articles &amp; Insights
+            Legal Articles & Insights
           </h1>
 
           <p className="text-gray-400 text-base sm:text-lg max-w-2xl mx-auto">

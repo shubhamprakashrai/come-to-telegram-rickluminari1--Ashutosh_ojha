@@ -129,7 +129,7 @@ export default function DisclaimerModal() {
                 className="w-full bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-amber-500/20 transform hover:-translate-y-0.5 flex items-center justify-center group"
               >
                 <CheckCircle className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-                I Agree &amp; Accept
+                I Agree & Accept
               </button>
             </div>
           </motion.div>

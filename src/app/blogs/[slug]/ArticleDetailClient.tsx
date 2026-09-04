@@ -277,7 +277,7 @@ export default function ArticleDetailClient() {
               </div>
               <div>
                 <p className="text-sm font-bold text-white">{article.author}</p>
-                <p className="text-xs text-gray-400">Advocate &amp; Legal Consultant, High Court of Delhi</p>
+                <p className="text-xs text-gray-400">Advocate & Legal Consultant, High Court of Delhi</p>
               </div>
             </div>
 

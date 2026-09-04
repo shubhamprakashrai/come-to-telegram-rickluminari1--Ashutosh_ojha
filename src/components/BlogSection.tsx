@@ -121,7 +121,7 @@ export default function BlogSection() {
               <span>Knowledge Corner</span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-              Legal Insights &amp; Perspectives
+              Legal Insights & Perspectives
             </h2>
             <p className="mt-3 text-gray-400 text-base max-w-xl">
               Thought leadership, legal commentary, and practical breakdowns on Indian law and court rulings.
