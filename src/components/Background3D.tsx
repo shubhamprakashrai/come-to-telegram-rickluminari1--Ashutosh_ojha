@@ -33,8 +33,11 @@ function AbstractShape() {
 
 export default function Background3D() {
   return (
-    <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
-      <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+    <div className="fixed inset-0 z-0 pointer-events-none opacity-40 select-none" style={{ pointerEvents: 'none' }}>
+      <Canvas 
+        camera={{ position: [0, 0, 5], fov: 45 }}
+        style={{ pointerEvents: 'none' }}
+      >
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 10, 5]} intensity={1} />
         <Environment preset="city" />
