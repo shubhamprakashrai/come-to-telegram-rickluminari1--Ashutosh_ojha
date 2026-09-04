@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://ashutoshojha.com/</loc>
-    <lastmod>2026-09-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://ashutoshojha.com/blogs</loc>
-    <lastmod>2026-09-03</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://ashutoshojha.com/blogs/navigating-commercial-arbitration</loc>
-    <lastmod>2026-09-03</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://ashutoshojha.com/blogs/corporate-governance-director-liability</loc>
-    <lastmod>2026-09-03</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://ashutoshojha.com/blogs/high-court-writ-jurisdictions</loc>
-    <lastmod>2026-09-03</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://ashutoshojha.com/blogs/contractual-indemnity-clauses</loc>
-    <lastmod>2026-09-03</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
+<url>
+<loc>https://ashutoshojha.com</loc>
+<lastmod>2026-09-04T04:15:23.394Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>1</priority>
+</url>
+<url>
+<loc>https://ashutoshojha.com/blogs</loc>
+<lastmod>2026-09-04T04:15:23.394Z</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.9</priority>
+</url>
+<url>
+<loc>https://ashutoshojha.com/blogs/navigating-commercial-arbitration</loc>
+<lastmod>2026-09-04T04:15:23.394Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://ashutoshojha.com/blogs/corporate-governance-director-liability</loc>
+<lastmod>2026-09-04T04:15:23.394Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://ashutoshojha.com/blogs/high-court-writ-jurisdictions</loc>
+<lastmod>2026-09-04T04:15:23.394Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://ashutoshojha.com/blogs/contractual-indemnity-clauses</loc>
+<lastmod>2026-09-04T04:15:23.394Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
+</url>
 </urlset>

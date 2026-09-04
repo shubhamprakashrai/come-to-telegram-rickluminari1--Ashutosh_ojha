@@ -57,6 +57,8 @@ async fn state_setup(db_pool: PgPool) {
         .route("/api/categories", post(create_category))
         .route("/api/categories/:id", put(update_category))
         .route("/api/categories/:id", delete(delete_category))
+        .route("/api/sitemap.xml", get(get_sitemap_xml))
+        .route("/sitemap.xml", get(get_sitemap_xml))
         .layer(cors)
         .with_state(state);
 
@@ -449,5 +451,31 @@ async fn delete_category(
         }
     }
 }
+
+async fn get_sitemap_xml(
+    State(state): State<AppState>,
+) -> impl axum::response::IntoResponse {
+    let rows = sqlx::query_as::<_, BlogPost>(
+        "SELECT id, title, slug, category, excerpt, content, author, image_url, published, created_at FROM blogs WHERE published = true ORDER BY created_at DESC"
+    )
+    .fetch_all(&state.db)
+    .await
+    .unwrap_or_default();
+
+    let mut xml = String::from("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n  <url>\n    <loc>https://ashutoshojha.com</loc>\n    <changefreq>weekly</changefreq>\n    <priority>1.0</priority>\n  </url>\n  <url>\n    <loc>https://ashutoshojha.com/blogs</loc>\n    <changefreq>daily</changefreq>\n    <priority>0.9</priority>\n  </url>\n");
+
+    for blog in rows {
+        let date_str = blog.created_at.format("%Y-%m-%d").to_string();
+        xml.push_str(&format!(
+            "  <url>\n    <loc>https://ashutoshojha.com/blogs/{}</loc>\n    <lastmod>{}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n",
+            blog.slug, date_str
+        ));
+    }
+
+    xml.push_str("</urlset>");
+
+    ([(axum::http::header::CONTENT_TYPE, "application/xml; charset=utf-8")], xml)
+}
+
 
 
